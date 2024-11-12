@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <title> User Login </title>
+    <meta name="description" content="This is a webpage to log user in">
+    <meta name="author" content="Yu Xu">
+    <meta charset="UTF-8">
+</head>
+
+<body>
+    <h1>Log in</h1>
+    <form method="POST">
+        {{form.hidden_tag()}}
+        <p> {{ form.username.label }} {{ form.username() }} ({{ form.username.description }}) </p>
+        <p> {{ form.password.label }} {{ form.password() }} ({{ form.password.description }}) </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+
+</body>
+
+</html>

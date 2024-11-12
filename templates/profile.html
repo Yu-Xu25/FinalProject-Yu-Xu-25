@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title> Profile </title>
+    <meta name="description"
+        content="This is a webpage where user can view and edit profile information from their submission.">
+    <meta name="author" content="Yu Xu">
+    <meta charset="UTF-8">
+</head>
+
+<body>
+    <p> Age: {{ profile.age }} </p>
+    <p> Gender: {{ profile.gender }} </p>
+    <p> Location: {{ profile.city }}, {{ profile.country }}</p>
+    <p> Sensitivity to Temperature: {{ profile.sense_temp }} </p>
+    <p> Sensitivity to Lightness: {{ profile.sense_light }} </p>
+    <p> Sensitivity to Humidity: {{ profile.sense_humidity }} </p>
+    <p> Allegies: {{ profile.has_allegies }} </p>
+    <p> Asthma: {{ profile.has_asthma }} </p>
+    <p> Other specification: {{ profile.other }} </p>
+</body>
+
+</html>
