@@ -2,23 +2,25 @@
 <html lang="en">
 
 <head>
-    <title> Profile </title>
-    <meta name="description"
-        content="This is a webpage where user can view and edit profile information from their submission.">
-    <meta name="author" content="Yu Xu">
+    <title>Profile</title>
     <meta charset="UTF-8">
 </head>
 
 <body>
-    <p> Age: {{ profile.age }} </p>
-    <p> Gender: {{ profile.gender }} </p>
-    <p> Location: {{ profile.city }}, {{ profile.country }}</p>
-    <p> Sensitivity to Temperature: {{ profile.sense_temp }} </p>
-    <p> Sensitivity to Lightness: {{ profile.sense_light }} </p>
-    <p> Sensitivity to Humidity: {{ profile.sense_humidity }} </p>
-    <p> Allegies: {{ profile.has_allegies }} </p>
-    <p> Asthma: {{ profile.has_asthma }} </p>
-    <p> Other specification: {{ profile.other }} </p>
+    <h1>Profile of {{ current_user.username }}</h1>
+
+    <!-- Profile Information -->
+    <p>Age: {{ profile.age }}</p>
+    <p>Gender: {{ profile.gender }}</p>
+    <p>Location: {{ profile.city }}, {{ profile.country }}</p>
+    <p>Comfort Level: {{ profile.comfort_level }}</p>
+
+    <!-- Links to Edit Profile or Preferences -->
+    <p><a href="{{ url_for('edit_profile') }}">Edit Profile</a></p>
+    <p><a href="{{ url_for('manage_locations') }}">Manage Locations</a></p>
+    <p><a href="{{ url_for('manage_wardrobe') }}">Manage Wardrobe</a></p>
+    <p><a href="{{ url_for('home') }}">Home</a></p>
+
 </body>
 
 </html>

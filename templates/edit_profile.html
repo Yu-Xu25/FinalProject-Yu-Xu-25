@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <title> User Login </title>
+    <meta name="description" content="This is a webpage for user to edit their profile">
+    <meta name="author" content="Yu Xu">
+    <meta charset="UTF-8">
+</head>
+
+<body>
+    <h1>Edit Your Profile</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div>{{ form.age.label }} {{ form.age() }}</div>
+        <div>{{ form.gender.label }} {{ form.gender() }}</div>
+        <div>{{ form.city.label }} {{ form.city() }}</div>
+        <div>{{ form.country.label }} {{ form.country() }}</div>
+        <div>{{ form.comfort_level.label }} {{ form.comfort_level() }}</div>
+        <div><button type="submit">Save Changes</button></div>
+    </form>
+
+
+</body>
+
+</html>

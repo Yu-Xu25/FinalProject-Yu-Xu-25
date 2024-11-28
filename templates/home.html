@@ -1,18 +1,75 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
-    <title> Home Page </title>
-    <meta name="description" content="This is the web home page where the user can explore content.">
-    <meta name="author" content="Yu Xu">
+    <title>Home Page</title>
     <meta charset="UTF-8">
 </head>
 
 <body>
+    {% if current_user.is_authenticated %}
+    <h1>Welcome back, {{ current_user.username }}!</h1>
+
+    <!-- Link to profile -->
+    <p><a href="{{ url_for('profile') }}">Go to Profile</a></p>
+
+    {% if alert %}
+    <div style="color: red;">
+        <strong>Weather Alert: {{ alert }}</strong>
+    </div>
+    {% endif %}
+
+    <!-- Display the weather based on user's location -->
+    <h2>{{ current_user.profile.city }}</h2>
+    <p>Condition: {{ condition }}</p>
+    <p>Temperature: {{ temperature }} °C</p>
+    <p>Feels Like Temperature: {{ feels_like }} °C</p>
+    <p>Wind Speed: {{ wind_speed }} km/h</p>
+    <p>Precipitation: {{ precipitation }} mm</p>
+    <p>Visibility: {{ visibility }} km</p>
+    <p>UV Index: {{ uv_index }}</p>
+    <p>Humidity: {{ humidity }}%</p>
+
+    <!-- Customized Outfit Recommendations -->
+    <h3>Recommended Outfit</h3>
+    <ul>
+        <li>Outerwear: {{ outfit_recommendations.outerwear }}</li>
+        <li>Footwear: {{ outfit_recommendations.footwear }}</li>
+        <li>Top: {{ outfit_recommendations.top }}</li>
+        <li>Bottom: {{ outfit_recommendations.bottom }}</li>
+        <li>Accessory: {{ outfit_recommendations.accessory }}</li>
+    </ul>
+
+
+    {% else %}
+    <!-- Default message and weather info for unauthenticated users -->
     <h1>Welcome to the Weather & Outfit Recommendation System!</h1>
-    <p><a href="{{ url_for('login') }}">Log in</a></p>
-    <p><a href="{{ url_for('register') }}">Sign up</a></p>
+
+    <p> To get personalized recommendations, please
+        <a href="{{ url_for('login') }}">Log in</a> or <a href="{{ url_for('register') }}">Sign up</a>!
+    </p>
+
+    <!-- Weather Info for Chicago -->
+    <h2>Chicago</h2>
+    <p>Condition: {{ condition }}</p>
+    <p>Temperature: {{ temperature }} °C</p>
+    <p>Feels Like Temperature: {{ feels_like }} °C</p>
+    <p>Wind Speed: {{ wind_speed }} km/h</p>
+    <p>Precipitation: {{ precipitation }} mm</p>
+    <p>Visibility: {{ visibility }} km</p>
+    <p>UV Index: {{ uv_index }}</p>
+    <p>Humidity: {{ humidity }}%</p>
+
+    <!-- Default Outfit Recommendations -->
+    <h3>Recommended Outfit</h3>
+    <ul>
+        <li>Outerwear: {{ outfit_recommendations.outerwear }}</li>
+        <li>Footwear: {{ outfit_recommendations.footwear }}</li>
+        <li>Top: {{ outfit_recommendations.top }}</li>
+        <li>Bottom: {{ outfit_recommendations.bottom }}</li>
+        <li>Accessory: {{ outfit_recommendations.accessory }}</li>
+    </ul>
+    {% endif %}
 </body>
 
 </html>

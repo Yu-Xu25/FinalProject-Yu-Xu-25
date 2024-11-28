@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="description" content="edit info for an item">
+    <meta name="author" content="Yu Xu">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Wardrobe Item</title>
+</head>
+
+<body>
+    <h2>Edit Wardrobe Item</h2>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div>{{ form.name.label }} {{ form.name() }}</div>
+        <div>{{ form.category.label }} {{ form.category() }}</div>
+        <div>
+            {% for subfield in form.temperature_ranges %}
+            <label>{{ subfield }} {{ subfield.label.text }}</label>
+            {% endfor %}
+        </div>
+        <div>{{ form.precipitation_tag.label }} {{ form.precipitation_tag() }}</div>
+        <div>{{ form.wind_protection_tag.label }} {{ form.wind_protection_tag() }}</div>
+        <div>{{ form.uv_protection_tag.label }} {{ form.uv_protection_tag() }}</div>
+        <div>{{ form.layer_type.label }} {{ form.layer_type() }}</div>
+        <div>{{ form.setting.label }} {{ form.setting() }}</div>
+        <div><button type="submit">Save Changes</button></div>
+    </form>
+
+</body>
+
+</html>

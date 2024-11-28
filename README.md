@@ -2,8 +2,8 @@
 
 # Weather Detector and Outfit Recommendation System 
 ## Here is what it can do: 
-* User Profile Creation: Allow users to input demographic information (name, gender, age, etc.). Include health conditions that might affect their sensitivity to temperature (e.g., allergies, asthma) to tailor recommendations.
-Weather Data Integration: Use APIs (like OpenWeatherMap or WeatherAPI) for reliable weather data. Fetch hourly weather forecasts to provide timely outfit recommendations throughout the day.
+* User Profile Creation: Allow users to input demographic information (name, gender, age, etc.). Include health conditions that might be affected by the weather (e.g., allergies, asthma) to tailor recommendations.
+Weather Data Integration: Use API provided by *weather api* for reliable weather data. Fetch hourly weather forecasts to provide timely outfit recommendations throughout the day.
 * Outfit Recommendations: Develop an algorithm that considers user preferences, current weather conditions (temperature, precipitation, wind), and their documented wardrobe(optional). Use a scoring system to rank clothing items based on warmth, weather resistance, and user preferences.
 * Wardrobe Management: Allow users to input details of their clothing items into a database. Implement a tagging system (e.g., rainy, windy, summer, winter) to categorize clothing items for better recommendations.
 * Travel Support: Enable users to input travel destinations and dates, and fetch weather forecasts for those locations. Provide packing lists or outfit suggestions based on the travel destination’s weather.
