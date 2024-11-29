@@ -1,3 +1,5 @@
+from models import *
+
 def calculate_heat_index(temp_f, humidity):
     # Constants for the Heat Index formula
     c1, c2, c3, c4, c5, c6, c7, c8, c9 = -42.38, 2.049, 10.14, -0.2248, -0.006838, -0.05482, 0.001228, 0.0008528, -0.00000199
@@ -45,8 +47,210 @@ def get_default_outfit_recommendations(weather_data, sample_items):
 
 # TODO
 # get outfit recommendations for an user based on current weather data as well as their profile entry
-def get_outfit_recommendations(weather_data, comfort_level, clothing_items):
-    pass
+def get_outfit_recommendations(weather_data, user_profile):
+    feels_like_temp = weather_data['temperature'] + (user_profile.comfort_level * 2.5)
+
+    # Determine which temperature range the feels-like temperature falls into
+    if feels_like_temp < 0:
+        temp_range = "below_0"
+    elif 0 <= feels_like_temp <= 10:
+        temp_range = "0_to_10"
+    elif 10 < feels_like_temp <= 20:
+        temp_range = "10_to_20"
+    else:
+        temp_range = "above_20"
+
+    # Query items that include the relevant temperature range
+    wardrobe_items = UserClothingItem.query.filter(UserClothingItem.user_id == user_profile.user_id).all()
+    suitable_items = [item for item in wardrobe_items if temp_range in item.temperature_ranges.split(",")]
+
+    # Core outfit recommendations based on feels-like temperature
+    outfit = {
+        "top": choose_item(suitable_items, category="top"),
+        "bottom": choose_item(suitable_items, category="bottom"),
+        "footwear": choose_item(suitable_items, category="footwear"),
+        "outerwear": choose_item(suitable_items, category="outerwear", optional=(feels_like_temp > 15))
+    }
+
+    # Optional outfit considerations for wind, precipitation, and UV
+    optional_outfit = {
+        "precipitation": choose_item(suitable_items, tag="precipitation_tag") if weather_data['precipitation'] else None,
+        "wind_protection": choose_item(suitable_items, tag="wind_protection_tag") if weather_data['wind_speed'] > 15 else None,
+        "uv_protection": choose_item(suitable_items, tag="uv_protection_tag") if weather_data['uv_index'] > 5 else None
+    }
+
+    # Messages for optional items
+    messages = []
+    if weather_data['precipitation'] and optional_outfit['precipitation'] is None:
+        messages.append("You might want to get prepared for this rainy day!")
+    if weather_data['wind_speed'] > 15 and optional_outfit['wind_protection'] is None:
+        messages.append("You might want to get prepared for this windy day!")
+    if weather_data['uv_index'] > 5 and optional_outfit['uv_protection'] is None:
+        messages.append("You might want to get prepared to protect yourself from the sun!")
+
+    return {
+        "outfit": outfit,
+        "optional_outfit": optional_outfit,
+        "messages": messages
+    }
+
+
     
+def choose_item(items, category=None, tag=None, optional=False):
+    """
+    Selects an item from the given list based on the specified category, and optionally a tag.
+
+    Args:
+        items (list): List of clothing items to choose from.
+        category (str): The category of the item (e.g., 'top', 'bottom', 'outerwear').
+        tag (str): Optional; tag to filter the items further (e.g., 'precipitation_tag').
+        optional (bool): If True, returns None if no item is found.
+
+    Returns:
+        UserClothingItem: The selected clothing item or None if no match is found.
+    """
+
+    # Filter items based on the specified category
+    if category:
+        items = [item for item in items if item.category == category]
+
+    # Further filter items based on the tag, if provided
+    if tag:
+        items = [item for item in items if getattr(item, tag, False)]
+
+    # If no items are found and the item is optional, return None
+    if optional and not items:
+        return None
+
+    # Return the first item if available, otherwise None
+    return items[0] if items else None
 
 
+
+# Add around 10 clothing items that cover a variety of conditions 
+# in the SampleClothingItem and UserClothingItem table
+def populate_sample_data():
+    sample_items = [
+        SampleClothingItem(
+            name="Puffer Jacket",
+            category="outerwear",
+            temperature_ranges="below_0,0_to_10",
+            precipitation_tag=True,
+            wind_protection_tag=True,
+            uv_protection_tag=False,
+            layer_type="outer",
+            setting="casual"
+        ),
+        SampleClothingItem(
+            name="Raincoat",
+            category="outerwear",
+            temperature_ranges="0_to_10,10_to_20",
+            precipitation_tag=True,
+            wind_protection_tag=False,
+            uv_protection_tag=False,
+            layer_type="outer",
+            setting="active"
+        ),
+        SampleClothingItem(
+            name="T-Shirt",
+            category="top",
+            temperature_ranges="10_to_20,above_20",
+            precipitation_tag=False,
+            wind_protection_tag=False,
+            uv_protection_tag=False,
+            layer_type="base",
+            setting="casual"
+        ),
+        SampleClothingItem(
+            name="Sunglasses",
+            category="accessory",
+            temperature_ranges="above_20",
+            precipitation_tag=False,
+            wind_protection_tag=False,
+            uv_protection_tag=True,
+            layer_type=None,
+            setting="casual"
+        ),
+        SampleClothingItem(
+            name="Windbreaker Jacket",
+            category="outerwear",
+            temperature_ranges="10_to_20,above_20",
+            precipitation_tag=False,
+            wind_protection_tag=True,
+            uv_protection_tag=False,
+            layer_type="outer",
+            setting="active"
+        ),
+        SampleClothingItem(
+            name="Jeans",
+            category="bottom",
+            temperature_ranges="0_to_10,10_to_20,above_20",
+            precipitation_tag=False,
+            wind_protection_tag=False,
+            uv_protection_tag=False,
+            layer_type="mid",
+            setting="casual"
+        ),
+        SampleClothingItem(
+            name="Wool Sweater",
+            category="top",
+            temperature_ranges="below_0,0_to_10",
+            precipitation_tag=False,
+            wind_protection_tag=False,
+            uv_protection_tag=False,
+            layer_type="mid",
+            setting="formal"
+        ),
+        SampleClothingItem(
+            name="Running Shoes",
+            category="footwear",
+            temperature_ranges="0_to_10,10_to_20,above_20",
+            precipitation_tag=False,
+            wind_protection_tag=False,
+            uv_protection_tag=False,
+            layer_type=None,
+            setting="active"
+        ),
+        SampleClothingItem(
+            name="Baseball Cap",
+            category="accessory",
+            temperature_ranges="10_to_20,above_20",
+            precipitation_tag=False,
+            wind_protection_tag=False,
+            uv_protection_tag=True,
+            layer_type=None,
+            setting="casual"
+        ),
+        SampleClothingItem(
+            name="Thermal Leggings",
+            category="bottom",
+            temperature_ranges="below_0,0_to_10",
+            precipitation_tag=False,
+            wind_protection_tag=True,
+            uv_protection_tag=False,
+            layer_type="base",
+            setting="active"
+        )
+    ]
+
+    for item in sample_items:
+        db.session.add(item)
+    db.session.commit()
+
+    # Copy sample items to the UserClothingItem table for every user in the database
+    users = User.query.all()  # Assuming User model is defined
+    for user in users:
+        for item in sample_items:
+            user_item = UserClothingItem(
+                name=item.name,
+                category=item.category,
+                temperature_ranges=item.temperature_ranges,
+                precipitation_tag=item.precipitation_tag,
+                wind_protection_tag=item.wind_protection_tag,
+                uv_protection_tag=item.uv_protection_tag,
+                layer_type=item.layer_type,
+                setting=item.setting,
+                user_id=user.id
+            )
+            db.session.add(user_item)
+    db.session.commit()

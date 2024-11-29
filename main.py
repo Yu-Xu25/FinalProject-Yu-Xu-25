@@ -1,5 +1,5 @@
 # render HTML templates, redirecting user to another page through url
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for
 # provide user session management, adds useful methods for user management (like is_authenticated, is_active, get_id())
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 # allow interact with the database using Python classes instead of writing SQL queries
@@ -94,12 +94,12 @@ def home():
                                humidity=humidity,
                                outfit_recommendations=outfit_recommendations)
 
-
-# create a db table based on models
-@app.before_request
-def create_tables():
+# Create tables and populate sample data during application setup
+@app.before_first_request
+def setup():
         #db.drop_all()
         db.create_all()
+        populate_sample_data()
 
 # profile creation 
 @app.route('/profile', methods = ['GET', 'POST'])
@@ -172,13 +172,15 @@ def edit_wardrobe_item(item_id):
         return redirect(url_for('manage_wardrobe'))
 
     form = ManageWardrobeForm(obj=item)
-    form.temperature_ranges.data = item.temperature_ranges.split(",") if item.temperature_ranges else []
+    form.temperature_ranges.data = item.temperature_ranges.split(",") \
+        if item.temperature_ranges else []
 
     if form.validate_on_submit():
         # Update the item with correct boolean values from the form
         item.name = form.name.data
         item.category = form.category.data
-        item.temperature_ranges = ",".join(form.temperature_ranges.data) if form.temperature_ranges.data else ""
+        item.temperature_ranges = ",".join(form.temperature_ranges.data) \
+                if form.temperature_ranges.data else ""
         item.precipitation_tag = form.precipitation_tag.data
         item.wind_protection_tag = form.wind_protection_tag.data
         item.uv_protection_tag = form.uv_protection_tag.data
@@ -306,15 +308,6 @@ def get_weather(city_name):
         
 
         return current_weather, alert_headline
-
-# TODO: Add around 20 clothing items that cover a variety of conditions in the SampleClothingItem table
-def populate_sample_data():
-    items = []
-    
-    # Add items to the session and commit
-    db.session.bulk_save_objects(items)
-    db.session.commit()
-
 
 
 

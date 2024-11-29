@@ -33,11 +33,30 @@
     <!-- Customized Outfit Recommendations -->
     <h3>Recommended Outfit</h3>
     <ul>
-        <li>Outerwear: {{ outfit_recommendations.outerwear }}</li>
-        <li>Footwear: {{ outfit_recommendations.footwear }}</li>
-        <li>Top: {{ outfit_recommendations.top }}</li>
-        <li>Bottom: {{ outfit_recommendations.bottom }}</li>
-        <li>Accessory: {{ outfit_recommendations.accessory }}</li>
+        <li>Top: {{ recommendations.outfit.top.name if recommendations.outfit.top }}</li>
+        <li>Bottom: {{ recommendations.outfit.bottom.name if recommendations.outfit.bottom }}</li>
+        <li>Footwear: {{ recommendations.outfit.footwear.name if recommendations.outfit.footwear }}</li>
+        <li>Outerwear: {{ recommendations.outfit.outerwear.name if recommendations.outfit.outerwear }}</li>
+    </ul>
+
+    <h3>Optional Recommendations</h3>
+    <ul>
+        {% if recommendations.optional_outfit.precipitation %}
+        <li>Precipitation Protection: {{ recommendations.optional_outfit.precipitation.name }}</li>
+        {% endif %}
+        {% if recommendations.optional_outfit.wind_protection %}
+        <li>Wind Protection: {{ recommendations.optional_outfit.wind_protection.name }}</li>
+        {% endif %}
+        {% if recommendations.optional_outfit.uv_protection %}
+        <li>UV Protection: {{ recommendations.optional_outfit.uv_protection.name }}</li>
+        {% endif %}
+    </ul>
+
+    <h3>Notes</h3>
+    <ul>
+        {% for message in recommendations.messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
     </ul>
 
 
@@ -63,12 +82,33 @@
     <!-- Default Outfit Recommendations -->
     <h3>Recommended Outfit</h3>
     <ul>
-        <li>Outerwear: {{ outfit_recommendations.outerwear }}</li>
-        <li>Footwear: {{ outfit_recommendations.footwear }}</li>
-        <li>Top: {{ outfit_recommendations.top }}</li>
-        <li>Bottom: {{ outfit_recommendations.bottom }}</li>
-        <li>Accessory: {{ outfit_recommendations.accessory }}</li>
+        <li>Top: {{ recommendations.outfit.top.name if recommendations.outfit.top }}</li>
+        <li>Bottom: {{ recommendations.outfit.bottom.name if recommendations.outfit.bottom }}</li>
+        <li>Footwear: {{ recommendations.outfit.footwear.name if recommendations.outfit.footwear }}</li>
+        <li>Outerwear: {{ recommendations.outfit.outerwear.name if recommendations.outfit.outerwear }}</li>
     </ul>
+
+    <h3>Optional Recommendations</h3>
+    <ul>
+        {% if recommendations.optional_outfit.precipitation %}
+        <li>Precipitation Protection: {{ recommendations.optional_outfit.precipitation.name }}</li>
+        {% endif %}
+        {% if recommendations.optional_outfit.wind_protection %}
+        <li>Wind Protection: {{ recommendations.optional_outfit.wind_protection.name }}</li>
+        {% endif %}
+        {% if recommendations.optional_outfit.uv_protection %}
+        <li>UV Protection: {{ recommendations.optional_outfit.uv_protection.name }}</li>
+        {% endif %}
+    </ul>
+
+    <h3>Notes</h3>
+    <ul>
+        {% for message in recommendations.messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+
+
     {% endif %}
 </body>
 
