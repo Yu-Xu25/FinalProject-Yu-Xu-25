@@ -2,11 +2,11 @@
 
 # Weather Detector and Outfit Recommendation System 
 ## Here is what it can do: 
-* User Profile Creation: Allow users to input demographic information (name, gender, age, etc.). Include health conditions that might be affected by the weather (e.g., allergies, asthma) to tailor recommendations.
+* User Profile Creation: Allow users to input demographic information (name, gender, age, etc.). Include comfort levels (stay warmer or cooler) that the user might like under the weather to tailor recommendations.
 Weather Data Integration: Use API provided by *weather api* for reliable weather data. Fetch hourly weather forecasts to provide timely outfit recommendations throughout the day.
 * Outfit Recommendations: Develop an algorithm that considers user preferences, current weather conditions (temperature, precipitation, wind), and their documented wardrobe(optional). Use a scoring system to rank clothing items based on warmth, weather resistance, and user preferences.
-* Wardrobe Management: Allow users to input details of their clothing items into a database. Implement a tagging system (e.g., rainy, windy, summer, winter) to categorize clothing items for better recommendations.
-* Travel Support: Enable users to input travel destinations and dates, and fetch weather forecasts for those locations. Provide packing lists or outfit suggestions based on the travel destination’s weather.
+* Wardrobe Management: Allow users to input details of their clothing items into a database. Implement a tagging system (e.g., rainy, windy, temperature) to categorize clothing items for better recommendations.
+* Location Management: Allow users to manage locations where they want to see recommendation of outfits.
 
 ## To-do list: 
 example: 
@@ -27,9 +27,14 @@ example:
     * I will implement wardrobe management functionality, allowing users to input their clothing items.
     * Set up a tagging system for clothing items to categorize them (e.g., seasonal, weather type).
 * By the end of week 8, 
-    * I will have created a user-friendly, modulized and clean interface for displaying current weather, outfit recommendations, wardrope management, and creating packing list (for travel plans).
+    * I will have created a user-friendly, modulized and clean interface for displaying current weather, outfit recommendations, and wardrobe management.
     * I will have tested basic functionality for each module.
 * Finally, 
     * I will have finalized the project by adding documentation, including API endpoints and usage instructions.
     * I will have prepared a presentation showcasing the project’s features and potential for future improvements.
  
+ Future developments:
+ * Travel Support: Enable users to input travel destinations and dates, and fetch weather forecasts for those locations. Provide packing lists or outfit suggestions based on the travel destination’s weather.
+ * Layered Outfits: Recommend layered outfits for users against the colder weather, such that user can be more adaptable to temperature differences between indoors and outdoors.
+ * Health Alerts: Alert of weather conditions that should be taken caution about for users with different health conditions.
+

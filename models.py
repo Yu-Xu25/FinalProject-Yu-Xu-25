@@ -3,6 +3,7 @@ from flask_login import UserMixin
 
 db = SQLAlchemy()
 
+# User data
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key = True) # set user id to be primary key
     username = db.Column(db.String(20), unique = True, nullable = True) # unique and nonempty username
@@ -14,6 +15,7 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f"User : id = {self.id}, username = {self.username}"
 
+# User Profile Data
 class Profile(db.Model):
     id = db.Column(db.Integer, primary_key = True) # set user id to be primary key
     age = db.Column(db.Integer, nullable = False)
@@ -29,21 +31,6 @@ class Profile(db.Model):
     def __repr__(self):
         return f"Profile : id = {self.user_id})"
 
-class WeatherForecast(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    city = db.Column(db.String(50), nullable=False)
-    time = db.Column(db.String(50), nullable=False)
-    condition = db.Column(db.String(200), nullable=True)
-    temperature = db.Column(db.Float, nullable=False)
-    feels_like = db.Column(db.Float, nullable=False)
-    wind_speed = db.Column(db.Float, nullable=False)
-    precipitation = db.Column(db.Float, nullable=False)
-    visibility = db.Column(db.Float, nullable=True)
-    uv_index = db.Column(db.Float, nullable=False)
-    humidity = db.Column(db.Float, nullable=False)
-
-    def __repr__(self):
-        return f"WeatherForecast(city={self.city}, time={self.time}, condition={self.condition})"
 
 # Sample Clothing Items (Predefined by the app)
 class SampleClothingItem(db.Model):
@@ -77,6 +64,7 @@ class UserClothingItem(db.Model):
     def __repr__(self):
         return f"<UserClothingItem {self.name}, {self.category}, User: {self.user_id}>"
 
+# User's Location
 class UserLocation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     location_zip = db.Column(db.String(10), nullable=True)

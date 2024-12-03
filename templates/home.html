@@ -14,6 +14,7 @@
     <p><a href="{{ url_for('profile') }}">Go to Profile</a></p>
     <p><a href="{{ url_for('logout')}}">Log Out</a></p>
 
+    <!-- Display alert if there is any -->
     {% if alert %}
     <div style="color: red;">
         <strong>Weather Alert: {{ alert }}</strong>

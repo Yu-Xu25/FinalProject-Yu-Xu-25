@@ -16,7 +16,7 @@
         {{ form.hidden_tag() }}
         <div>{{ form.name.label }} {{ form.name() }}</div>
         <div>{{ form.category.label }} {{ form.category() }}</div>
-        <div>
+        <div> Suitable for Temperature:
             {% for subfield in form.temperature_ranges %}
             <label>{{ subfield }} {{ subfield.label.text }}</label>
             {% endfor %}

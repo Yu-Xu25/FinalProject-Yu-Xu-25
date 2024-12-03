@@ -1,45 +1,7 @@
 from models import *
-
-def calculate_heat_index(temp_f, humidity):
-    # Constants for the Heat Index formula
-    c1, c2, c3, c4, c5, c6, c7, c8, c9 = -42.38, 2.049, 10.14, -0.2248, -0.006838, -0.05482, 0.001228, 0.0008528, -0.00000199
-    HI = (c1 + c2 * temp_f + c3 * humidity + c4 * temp_f * humidity + 
-          c5 * temp_f**2 + c6 * humidity**2 + c7 * temp_f**2 * humidity + 
-          c8 * temp_f * humidity**2 + c9 * temp_f**2 * humidity**2)
-    return HI
-
-def calculate_wind_chill(temp_f, wind_speed_mph):
-    # Wind Chill formula
-    Twc = 35.74 + 0.6215 * temp_f - 35.75 * wind_speed_mph**0.16 + 0.4275 * temp_f * wind_speed_mph**0.16
-    return Twc
-
-# calculate apparent temperature customized for a given user given their profile entry 
-# reference: https://www.meteor.iastate.edu/~ckarsten/bufkit/apparent_temperature.html
-def calculate_apparent_temperature(weather_data):
-    
-    temp_c = weather_data.get('temp_c', 0)
-    wind_speed_kph = weather_data.get('wind_kph', 0)
-    humidity = weather_data.get('humidity', 0)
-
-    temp_f = (temp_c * 9/5) + 32  # Convert Celsius to Fahrenheit
-    wind_speed_mph = wind_speed_kph * 0.62 # Convert kph to mph for wind chill formula
-
-    # Calculate Heat Index (if applicable, for temperatures above 80°F)
-    if temp_f > 80:
-        heat_index = calculate_heat_index(temp_f, humidity)
-        apparent_temp = heat_index
-    # Calculate Wind Chill (if applicable, for temperatures below 50°F)
-    elif temp_f < 50:
-        wind_chill = calculate_wind_chill(temp_f, wind_speed_mph)  
-        apparent_temp = wind_chill
-    else:
-        apparent_temp = temp_f  # Between 50°F and 80°F, use the actual temperature (ambient air temperature)
+import random
 
 
-    return apparent_temp
-
-
-# TODO: to be tested and reviewed
 # get default outfit recommendations based on current weather data
 def get_default_outfit_recommendations(weather_data):
     feels_like_temp = weather_data['feelslike_c']
@@ -78,12 +40,15 @@ def get_default_outfit_recommendations(weather_data):
 
     # Messages for optional items
     messages = []
-    if weather_data['precip_mm'] > 0 and optional_outfit['precipitation'] is None:
-        messages.append("You might want to get prepared for this rainy day!")
-    if weather_data['wind_kph'] > 15 and optional_outfit['wind_protection'] is None:
-        messages.append("You might want to get prepared for this windy day!")
-    if weather_data['uv'] > 5 and optional_outfit['uv_protection'] is None:
-        messages.append("You might want to protect yourself from the sun!")
+    if weather_data['precip_mm'] > 0 or weather_data['wind_kph'] > 15 or weather_data['uv'] > 5:
+        if weather_data['precip_mm'] > 0 and optional_outfit['precipitation'] is None:
+            messages.append("You might want to get prepared for this rainy day!")
+        if weather_data['wind_kph'] > 15 and optional_outfit['wind_protection'] is None:
+            messages.append("You might want to get prepared for this windy day!")
+        if weather_data['uv'] > 5 and optional_outfit['uv_protection'] is None:
+            messages.append("You might want to protect yourself from the sun!")
+    else:
+        messages.append("Enjoy this wonderful weather!")
 
     return {
         "outfit": outfit,
@@ -94,7 +59,7 @@ def get_default_outfit_recommendations(weather_data):
 
 # get outfit recommendations for an user based on current weather data as well as their profile entry
 def get_outfit_recommendations(weather_data, user_profile):
-    feels_like_temp = weather_data['feelslike_c'] + (user_profile.comfort_level * 2.5)
+    feels_like_temp = weather_data['feelslike_c'] + (user_profile.comfort_level * 5)
 
     # Determine which temperature range the feels-like temperature falls into
     if feels_like_temp < 0:
@@ -147,26 +112,14 @@ def get_outfit_recommendations(weather_data, user_profile):
     }
 
 
-    
+# Selects an item from the given list based on the specified category, and optionally a tag.
 def choose_item(items, category=None, tag=None, optional=False):
-    """
-    Selects an item from the given list based on the specified category, and optionally a tag.
+    # tag (str): Optional; tag to filter the items further (e.g., 'precipitation_tag').
+    # optional (bool): If True, returns None if no item is found.
 
-    Args:
-        items (list): List of clothing items to choose from.
-        category (str): The category of the item (e.g., 'top', 'bottom', 'outerwear').
-        tag (str): Optional; tag to filter the items further (e.g., 'precipitation_tag').
-        optional (bool): If True, returns None if no item is found.
-
-    Returns:
-        UserClothingItem: The selected clothing item or None if no match is found.
-    """
-
-    # Filter items based on the specified category
     if category:
         items = [item for item in items if item.category == category]
 
-    # Further filter items based on the tag, if provided
     if tag:
         items = [item for item in items if getattr(item, tag, False)]
 
@@ -175,7 +128,7 @@ def choose_item(items, category=None, tag=None, optional=False):
         return None
 
     # Return the first item if available, otherwise None
-    return items[0] if items else None
+    return random.choice(items) if items else None
 
 
 # Function to populate sample data for a newly registered user

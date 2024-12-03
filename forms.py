@@ -3,6 +3,7 @@ from wtforms import StringField, IntegerField, SelectField, \
     SubmitField, PasswordField, SelectMultipleField, BooleanField, widgets
 from wtforms.validators import DataRequired, Length, Optional
 
+# User Profile entry
 class UserProfileForm(FlaskForm):
     age = IntegerField('Age', validators=[DataRequired()])
     gender = SelectField('Gender', choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')], validators=[DataRequired()])
@@ -20,6 +21,7 @@ class UserProfileForm(FlaskForm):
 
     submit = SubmitField('Save Profile')
 
+# validate that at least one form of location is provided
     def validate(self, **kwargs):
         if not (self.location_zip.data or self.location_city.data or 
                 (self.location_latitude.data and self.location_longitude.data)):
@@ -27,6 +29,7 @@ class UserProfileForm(FlaskForm):
             return False
         return super().validate(**kwargs)
 
+# User Registration Entry
 class RegistrationForm(FlaskForm):
     # User Creation
     username = StringField('Username', description = 'between 1 and 20 characters', 
@@ -60,7 +63,7 @@ class RegistrationForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    # User login
+    # User Login
     username = StringField('Username', description = 'between 1 and 16 characters', 
                             validators=[DataRequired(), Length(min = 1, max = 16)])
     password = PasswordField('Password', description ='at least 6 characters', 
@@ -71,6 +74,7 @@ class LoginForm(FlaskForm):
 def str_to_bool(value):
     return value == 'True'
 
+# User Wardrobe entry
 class ManageWardrobeForm(FlaskForm):
     name = StringField('Clothing Name', validators=[DataRequired()])
     category = SelectField('Category', choices=[
@@ -104,6 +108,7 @@ class ManageWardrobeForm(FlaskForm):
 
     submit = SubmitField('Add Item')
 
+# User Location entry
 class LocationForm(FlaskForm):
     location_zip = StringField('ZIP Code', validators=[Optional()])
     location_city = StringField('City', validators=[Optional()])

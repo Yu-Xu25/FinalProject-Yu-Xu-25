@@ -2,8 +2,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 # provide user session management, adds useful methods for user management (like is_authenticated, is_active, get_id())
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-# allow interact with the database using Python classes instead of writing SQL queries
-from flask_sqlalchemy import SQLAlchemy
 # allow hashing passwords for security
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
@@ -20,8 +18,8 @@ secret_key = secrets.token_hex(16)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secret_key
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db' # set up a SQLite database to use
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # control how long users remain logged in before being automatically logged out
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=15) 
 # allows the class to map to a database table
 db.init_app(app)
@@ -32,10 +30,12 @@ login_manager.login_view = 'login' # Redirect to login page if not logged in
 
 
 # python decorator that flask uses to connect url end point with code-containing functions
+# home page
 @app.route('/')
 def home():
+    # User is logged in
     if current_user.is_authenticated:
-        # User is logged in
+        
         primary_location = UserLocation.query.filter_by(user_id=current_user.id, is_primary=True).first()
         
         location_name = primary_location.get_location_name()
@@ -125,7 +125,7 @@ def edit_profile():
         db.session.commit() # commit profile change
 
         primary_location = UserLocation.query.filter_by(user_id=current_user.id, is_primary=True).first()
-
+        # If pimary location is already set, change it into the entry in edit profile
         if primary_location:
             primary_location.location_zip = form.location_zip.data \
                 if form.location_zip.data else None
@@ -163,7 +163,7 @@ def manage_locations():
         if form.is_primary.data:
             # Set all other locations as non-primary
             UserLocation.query.filter_by(user_id=current_user.id, is_primary=True).update({"is_primary": False})
-
+        # Add new location
         new_location = UserLocation(
             user_id=current_user.id,
             location_zip=form.location_zip.data,
@@ -179,7 +179,7 @@ def manage_locations():
     return render_template('manage_locations.html', form=form, locations=user_locations)
 
 
-
+# delete location
 @app.route('/delete_location/<int:location_id>', methods=['GET'])
 @login_required
 def delete_location(location_id):
@@ -190,6 +190,7 @@ def delete_location(location_id):
 
     return redirect(url_for('manage_locations'))
 
+# Set a location as primary to be displayed at home page
 @app.route('/set_primary_location/<int:location_id>', methods=['GET'])
 @login_required
 def set_primary_location(location_id):
@@ -204,6 +205,7 @@ def set_primary_location(location_id):
 
     return redirect(url_for('manage_locations'))
 
+# Add new item in the user's wardrobe
 @app.route('/manage_wardrobe', methods=['GET', 'POST'])
 @login_required
 def manage_wardrobe():
@@ -234,6 +236,7 @@ def manage_wardrobe():
 
     return render_template('manage_wardrobe.html', form=form, wardrobe_items=wardrobe_items)
 
+# Edit an item info in user's wardrobe
 @app.route('/edit_wardrobe_item/<int:item_id>', methods=['GET', 'POST'])
 @login_required
 def edit_wardrobe_item(item_id):
@@ -277,7 +280,7 @@ def delete_wardrobe_item(item_id):
     return redirect(url_for('manage_wardrobe'))
 
 
-
+# New user registration
 @app.route('/register', methods = ['GET', 'POST'])
 def register():
         form = RegistrationForm()
@@ -293,18 +296,17 @@ def register():
                         location_longitude = form.location_longitude.data,
                         comfort_level = int(form.comfort_level.data)
                 )
-                print(f"Adding user: {user.username} to the database.") # Debugging: user added
                 db.session.add(user)
-                db.session.commit()  # This commits both the user and profile to the database
+                db.session.commit()  # commits both the user and profile to the database
                 
                 user.profile = profile
                 db.session.add(profile)
                 db.session.commit() # add user object in the database
 
-                print(f"User {user.username} and profile saved to the database.") # Debugging: user and profile saved
                 # populate user wardrobe with sample items
                 populate_user_wardrobe(user.id)
 
+                # add a location for user
                 if form.location_zip.data or form.location_city.data or \
                         (form.location_latitude.data and form.location_longitude.data):
                         new_location = UserLocation(
@@ -322,16 +324,16 @@ def register():
                         db.session.add(new_location)
                         db.session.commit()
                 
-                print(f"User {user.username} location saved to the database.") # Debugging: location saved
 
                 login_user(user) # log the user in
                 return redirect(url_for('home'))
         return render_template('register.html', form = form)
-
+# load user
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-        
+
+# log in a user
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
         form = LoginForm()
@@ -380,41 +382,9 @@ def get_weather(city_name=None, zipcode=None, latitude=None, longitude=None):
                 print("Error fetching weather data: ", response.status_code)
 
         current_weather = data.get("current", {})
-        forecast_day = data.get("forecast", {}).get("forecastday", [])[0] if data.get("forecast") else {}
-
-        # TODO: whether ot not to use hourly data
-        for hour in forecast_day.get("hour", []):
-                hour_time = hour.get("time")
-                hour_condition = hour.get("condition", {}).get("text")
-                hour_temp_c = hour.get("temp_c")
-                hour_feels_like_c = hour.get("feelslike_c")
-                hour_wind_speed_kph = hour.get("wind_kph")
-                hour_precip_mm = hour.get("precip_mm")
-                hour_visibility_km = hour.get("vis_km")
-                hour_uv_index = hour.get("uv")
-                hour_humidity = hour.get("humidity")
-                
-                
-                # Store each hourly weather data entry in the database
-                weather_entry = WeatherForecast(
-                        city=city_name,
-                        time=hour_time,
-                        condition=hour_condition,
-                        temperature=hour_temp_c,
-                        feels_like=hour_feels_like_c,
-                        wind_speed=hour_wind_speed_kph,
-                        precipitation=hour_precip_mm,
-                        uv_index=hour_uv_index,
-                        visibility=hour_visibility_km,
-                        humidity=hour_humidity
-                )
-                db.session.add(weather_entry)
-
-        db.session.commit()  # Commit all the data
 
                  
-        # Extract alert data
-        # TODO: get customized alerts
+        # Extract alert data, display as headline if there's any severe weather should be alerted.
         alerts = data.get("alerts", {}).get("alert", [])
         alert_headline = alerts[0].get("headline") if alerts else None
 
