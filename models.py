@@ -14,13 +14,14 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f"User : id = {self.id}, username = {self.username}"
 
-
 class Profile(db.Model):
     id = db.Column(db.Integer, primary_key = True) # set user id to be primary key
     age = db.Column(db.Integer, nullable = False)
     gender = db.Column(db.String(20), nullable = False)
-    city = db.Column(db.String(50), nullable = False)
-    country = db.Column(db.String(50), nullable = False)
+    location_zip = db.Column(db.String(10), nullable=True)
+    location_city = db.Column(db.String(100), nullable=True)
+    location_latitude = db.Column(db.String, nullable=True)
+    location_longitude = db.Column(db.String, nullable=True)
     comfort_level = db.Column(db.Integer, nullable = False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
@@ -70,8 +71,30 @@ class UserClothingItem(db.Model):
     uv_protection_tag = db.Column(db.Boolean, nullable=False)
     layer_type = db.Column(db.String(50), nullable=True)  
     setting = db.Column(db.String(50), nullable=True)  
+
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
         return f"<UserClothingItem {self.name}, {self.category}, User: {self.user_id}>"
 
+class UserLocation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    location_zip = db.Column(db.String(10), nullable=True)
+    location_city = db.Column(db.String(100), nullable=True)
+    location_latitude = db.Column(db.String(20), nullable=True)
+    location_longitude = db.Column(db.String(20), nullable=True)
+    is_primary = db.Column(db.Boolean, default=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+    def get_location_name(self):
+        if self.location_city:
+            return self.location_city
+        elif self.location_zip:
+            return self.location_zip
+        elif self.location_latitude is not None and self.location_longitude is not None:
+            return f"{self.location_latitude},{self.location_longitude}"
+        return "Unknown Location"
+    
+    def __repr__(self):
+        return f"<UserLocation {self.id} - User {self.user_id}>"

@@ -1,12 +1,15 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SelectField, SubmitField, PasswordField, SelectMultipleField, widgets
-from wtforms.validators import DataRequired, Length
+from wtforms import StringField, IntegerField, SelectField, \
+    SubmitField, PasswordField, SelectMultipleField, BooleanField, widgets
+from wtforms.validators import DataRequired, Length, Optional
 
 class UserProfileForm(FlaskForm):
     age = IntegerField('Age', validators=[DataRequired()])
     gender = SelectField('Gender', choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')], validators=[DataRequired()])
-    city = StringField('Location(city)', validators=[DataRequired()])
-    country = StringField('Location(country/region)', validators=[DataRequired()])
+    location_zip = StringField('US Zip Code', validators=[Optional()])
+    location_city = StringField('City', validators=[Optional()])
+    location_latitude = StringField('Latitude', validators=[Optional()])
+    location_longitude = StringField('Longitude', validators=[Optional()])
     comfort_level = SelectField('Comfort level (cooler to warmer)', choices=[
         (-2, 'Stay Much Cooler'),
         (-1, 'Stay Cooler'),
@@ -15,9 +18,14 @@ class UserProfileForm(FlaskForm):
         (2, 'Stay Much Warmer')
     ], default=0, validators=[DataRequired()])
 
-    
-    submit = SubmitField('Save Changes')
+    submit = SubmitField('Save Profile')
 
+    def validate(self, **kwargs):
+        if not (self.location_zip.data or self.location_city.data or 
+                (self.location_latitude.data and self.location_longitude.data)):
+            self.location_zip.errors.append("Please provide at least one form of location.")
+            return False
+        return super().validate(**kwargs)
 
 class RegistrationForm(FlaskForm):
     # User Creation
@@ -29,8 +37,10 @@ class RegistrationForm(FlaskForm):
     # Profile Creation
     age = IntegerField('Age', validators=[DataRequired()])
     gender = SelectField('Gender', choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')], validators=[DataRequired()])
-    city = StringField('Location(city)', validators=[DataRequired()])
-    country = StringField('Location(country/region)', validators=[DataRequired()])
+    location_zip = StringField('US Zip Code', validators=[Optional()])
+    location_city = StringField('City', validators=[Optional()])
+    location_latitude = StringField('Latitude', validators=[Optional()])
+    location_longitude = StringField('Longitude', validators=[Optional()])
     comfort_level = SelectField('Comfort level (cooler to warmer)', choices=[
         (-2, 'Stay Much Cooler'),
         (-1, 'Stay Cooler'),
@@ -38,9 +48,15 @@ class RegistrationForm(FlaskForm):
         (1, 'Stay Warmer'),
         (2, 'Stay Much Warmer')
     ], default=0, validators=[DataRequired()])
-
     
     submit = SubmitField('Sign Up')
+
+    def validate(self, **kwargs):
+        if not (self.location_zip.data or self.location_city.data or 
+                (self.location_latitude.data and self.location_longitude.data)):
+            self.location_zip.errors.append("Please provide at least one form of location.")
+            return False
+        return super().validate(**kwargs)
 
 
 class LoginForm(FlaskForm):
@@ -87,3 +103,19 @@ class ManageWardrobeForm(FlaskForm):
     ], validators=[DataRequired()])
 
     submit = SubmitField('Add Item')
+
+class LocationForm(FlaskForm):
+    location_zip = StringField('ZIP Code', validators=[Optional()])
+    location_city = StringField('City', validators=[Optional()])
+    location_latitude = StringField('Latitude', validators=[Optional()])
+    location_longitude = StringField('Longitude', validators=[Optional()])
+    is_primary = BooleanField('Set as Primary Location')
+    submit = SubmitField('Save Location')
+
+
+    def validate(self, **kwargs):
+        if not (self.location_zip.data or self.location_city.data or 
+                (self.location_latitude.data and self.location_longitude.data)):
+            self.location_zip.errors.append("Please provide at least one form of location.")
+            return False
+        return super().validate(**kwargs)

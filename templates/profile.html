@@ -12,7 +12,19 @@
     <!-- Profile Information -->
     <p>Age: {{ profile.age }}</p>
     <p>Gender: {{ profile.gender }}</p>
-    <p>Location: {{ profile.city }}, {{ profile.country }}</p>
+
+    {% if profile.location_zip %}
+    <div>ZIP Code: {{ profile.location_zip }}</div>
+    {% endif %}
+
+    {% if profile.location_city %}
+    <div>City: {{ profile.location_city }}</div>
+    {% endif %}
+
+    {% if profile.location_latitude and profile.location_longitude %}
+    <div>Coordinates: {{ profile.location_latitude }}, {{ profile.location_longitude }}</div>
+    {% endif %}
+
     <p>Comfort Level: {{ profile.comfort_level }}</p>
 
     <!-- Links to Edit Profile or Preferences -->

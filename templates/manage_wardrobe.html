@@ -11,7 +11,7 @@
 
 <body>
     <h2>Manage Your Wardrobe</h2>
-
+    <!-- Add a wardrope item-->
     <form method="POST">
         {{ form.hidden_tag() }}
         <div>{{ form.name.label }} {{ form.name() }}</div>
@@ -28,7 +28,7 @@
         <div>{{ form.setting.label }} {{ form.setting() }}</div>
         <div><button type="submit">Add Item</button></div>
     </form>
-
+    <!-- Display items currently in wardrope -->
     <h3>Your Wardrobe Items</h3>
     <ul>
         {% for item in wardrobe_items %}

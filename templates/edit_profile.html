@@ -15,8 +15,10 @@
         {{ form.hidden_tag() }}
         <div>{{ form.age.label }} {{ form.age() }}</div>
         <div>{{ form.gender.label }} {{ form.gender() }}</div>
-        <div>{{ form.city.label }} {{ form.city() }}</div>
-        <div>{{ form.country.label }} {{ form.country() }}</div>
+        <div>{{ form.location_zip.label }} {{ form.location_zip() }}</div>
+        <div>{{ form.location_city.label }} {{ form.location_city() }}</div>
+        <div>{{ form.location_latitude.label }} {{ form.location_latitude() }}</div>
+        <div>{{ form.location_longitude.label }} {{ form.location_longitude() }}</div>
         <div>{{ form.comfort_level.label }} {{ form.comfort_level() }}</div>
         <div><button type="submit">Save Changes</button></div>
     </form>

@@ -39,16 +39,62 @@ def calculate_apparent_temperature(weather_data):
     return apparent_temp
 
 
-# TODO
+# TODO: to be tested and reviewed
 # get default outfit recommendations based on current weather data
-def get_default_outfit_recommendations(weather_data, sample_items):
-    pass
+def get_default_outfit_recommendations(weather_data):
+    feels_like_temp = weather_data['feelslike_c']
+
+    # Determine which temperature range the feels-like temperature falls into
+    if feels_like_temp < 0:
+        temp_range = "below_0"
+    elif 0 <= feels_like_temp <= 10:
+        temp_range = "0_to_10"
+    elif 10 < feels_like_temp <= 20:
+        temp_range = "10_to_20"
+    else:
+        temp_range = "above_20"
+
+    # Query items that include the relevant temperature range
+    wardrobe_items = SampleClothingItem.query.all()
+    suitable_items = [item for item in wardrobe_items if temp_range in item.temperature_ranges.split(",")]
+
+    # Core outfit recommendations based on feels-like temperature
+    outfit = {
+        "top": choose_item(suitable_items, category="top"),
+        "bottom": choose_item(suitable_items, category="bottom"),
+        "footwear": choose_item(suitable_items, category="footwear"),
+        "outerwear": choose_item(suitable_items, category="outerwear", optional=(feels_like_temp > 15))
+    }
+
+    # Optional outfit considerations for wind, precipitation, and UV
+    optional_outfit = {
+        "precipitation": choose_item(suitable_items, tag="precipitation_tag") \
+            if weather_data['precip_mm'] > 0 else None,
+        "wind_protection": choose_item(suitable_items, tag="wind_protection_tag") \
+            if weather_data['wind_kph'] > 15 else None,
+        "uv_protection": choose_item(suitable_items, tag="uv_protection_tag") \
+            if weather_data['uv'] > 5 else None
+    }
+
+    # Messages for optional items
+    messages = []
+    if weather_data['precip_mm'] > 0 and optional_outfit['precipitation'] is None:
+        messages.append("You might want to get prepared for this rainy day!")
+    if weather_data['wind_kph'] > 15 and optional_outfit['wind_protection'] is None:
+        messages.append("You might want to get prepared for this windy day!")
+    if weather_data['uv'] > 5 and optional_outfit['uv_protection'] is None:
+        messages.append("You might want to protect yourself from the sun!")
+
+    return {
+        "outfit": outfit,
+        "optional_outfit": optional_outfit,
+        "messages": messages
+    }
         
 
-# TODO
 # get outfit recommendations for an user based on current weather data as well as their profile entry
 def get_outfit_recommendations(weather_data, user_profile):
-    feels_like_temp = weather_data['temperature'] + (user_profile.comfort_level * 2.5)
+    feels_like_temp = weather_data['feelslike_c'] + (user_profile.comfort_level * 2.5)
 
     # Determine which temperature range the feels-like temperature falls into
     if feels_like_temp < 0:
@@ -74,20 +120,26 @@ def get_outfit_recommendations(weather_data, user_profile):
 
     # Optional outfit considerations for wind, precipitation, and UV
     optional_outfit = {
-        "precipitation": choose_item(suitable_items, tag="precipitation_tag") if weather_data['precipitation'] else None,
-        "wind_protection": choose_item(suitable_items, tag="wind_protection_tag") if weather_data['wind_speed'] > 15 else None,
-        "uv_protection": choose_item(suitable_items, tag="uv_protection_tag") if weather_data['uv_index'] > 5 else None
+        "precipitation": choose_item(suitable_items, tag="precipitation_tag") \
+            if weather_data['precip_mm'] > 0 else None,
+        "wind_protection": choose_item(suitable_items, tag="wind_protection_tag") \
+            if weather_data['wind_kph'] > 15 else None,
+        "uv_protection": choose_item(suitable_items, tag="uv_protection_tag") \
+            if weather_data['uv'] > 5 else None
     }
 
     # Messages for optional items
     messages = []
-    if weather_data['precipitation'] and optional_outfit['precipitation'] is None:
-        messages.append("You might want to get prepared for this rainy day!")
-    if weather_data['wind_speed'] > 15 and optional_outfit['wind_protection'] is None:
-        messages.append("You might want to get prepared for this windy day!")
-    if weather_data['uv_index'] > 5 and optional_outfit['uv_protection'] is None:
-        messages.append("You might want to get prepared to protect yourself from the sun!")
-
+    if weather_data['precip_mm'] > 0 or weather_data['wind_kph'] > 15 or weather_data['uv'] > 5:
+        if weather_data['precip_mm'] > 0 and optional_outfit['precipitation'] is None:
+            messages.append("You might want to get prepared for this rainy day!")
+        if weather_data['wind_kph'] > 15 and optional_outfit['wind_protection'] is None:
+            messages.append("You might want to get prepared for this windy day!")
+        if weather_data['uv'] > 5 and optional_outfit['uv_protection'] is None:
+            messages.append("You might want to protect yourself from the sun!")
+    else:
+        messages.append("Enjoy this wonderful weather!")
+    
     return {
         "outfit": outfit,
         "optional_outfit": optional_outfit,
@@ -124,6 +176,25 @@ def choose_item(items, category=None, tag=None, optional=False):
 
     # Return the first item if available, otherwise None
     return items[0] if items else None
+
+
+# Function to populate sample data for a newly registered user
+def populate_user_wardrobe(user_id):
+    sample_items = SampleClothingItem.query.all()
+    for item in sample_items:
+        user_item = UserClothingItem(
+            name=item.name,
+            category=item.category,
+            temperature_ranges=item.temperature_ranges,
+            precipitation_tag=item.precipitation_tag,
+            wind_protection_tag=item.wind_protection_tag,
+            uv_protection_tag=item.uv_protection_tag,
+            layer_type=item.layer_type,
+            setting=item.setting,
+            user_id=user_id
+        )
+        db.session.add(user_item)
+    db.session.commit()
 
 
 
@@ -233,24 +304,8 @@ def populate_sample_data():
         )
     ]
 
-    for item in sample_items:
-        db.session.add(item)
-    db.session.commit()
-
-    # Copy sample items to the UserClothingItem table for every user in the database
-    users = User.query.all()  # Assuming User model is defined
-    for user in users:
+    # Populate SampleClothingItem table if empty
+    if not SampleClothingItem.query.first():
         for item in sample_items:
-            user_item = UserClothingItem(
-                name=item.name,
-                category=item.category,
-                temperature_ranges=item.temperature_ranges,
-                precipitation_tag=item.precipitation_tag,
-                wind_protection_tag=item.wind_protection_tag,
-                uv_protection_tag=item.uv_protection_tag,
-                layer_type=item.layer_type,
-                setting=item.setting,
-                user_id=user.id
-            )
-            db.session.add(user_item)
-    db.session.commit()
+            db.session.add(item)
+        db.session.commit()

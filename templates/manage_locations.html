@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title> User Login </title>
+    <meta name="description" content="This is a webpage for user to manage their locations">
+    <meta name="author" content="Yu Xu">
+    <meta charset="UTF-8">
+</head>
+
+<body>
+    <h1>Manage Your Locations</h1>
+
+    <!-- Form to Add New Location -->
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div>{{ form.location_zip.label }} {{ form.location_zip() }}</div>
+        <div>{{ form.location_city.label }} {{ form.location_city() }}</div>
+        <div>{{ form.location_latitude.label }} {{ form.location_latitude() }}</div>
+        <div>{{ form.location_longitude.label }} {{ form.location_longitude() }}</div>
+        <div>{{ form.is_primary.label }} {{ form.is_primary() }}</div>
+        <div><button type="submit">Add Location</button></div>
+    </form>
+
+    <!-- List of Existing Locations -->
+    <h2>Your Locations</h2>
+    <ul>
+        {% for location in locations %}
+        <li>
+            {% if location.is_primary %} <strong>(Primary)</strong> {% endif %}
+            {% if location.location_zip %} ZIP Code: {{ location.location_zip }} {% endif %}
+            {% if location.location_city %} City: {{ location.location_city }} {% endif %}
+            {% if location.location_latitude and location.location_longitude %}
+            Coordinates: {{ location.location_latitude }}, {{ location.location_longitude }}
+            {% endif %}
+            <!-- Buttons to edit, delete, or set as primary -->
+            <a href="{{ url_for('delete_location', location_id=location.id) }}">Delete</a>
+            {% if not location.is_primary %}
+            <a href="{{ url_for('set_primary_location', location_id=location.id) }}">Set as Primary</a>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+
+    <p><a href="{{ url_for('profile') }}">Back to Profile</a></p>
+</body>
+
+</html>

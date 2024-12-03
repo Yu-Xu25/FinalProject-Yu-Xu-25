@@ -8,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 import secrets
+from datetime import timedelta
 
 from forms import *
 from models import *
@@ -20,7 +21,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = secret_key
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db' # set up a SQLite database to use
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+# control how long users remain logged in before being automatically logged out
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=15) 
 # allows the class to map to a database table
 db.init_app(app)
 
@@ -34,8 +36,11 @@ login_manager.login_view = 'login' # Redirect to login page if not logged in
 def home():
     if current_user.is_authenticated:
         # User is logged in
-        city = current_user.profile.city  # Fetch the user's city from their profile
-        weather_data, alert = get_weather(city)  # Get weather data for the user's location
+        primary_location = UserLocation.query.filter_by(user_id=current_user.id, is_primary=True).first()
+        
+        location_name = primary_location.get_location_name()
+         # Get the weather data for the user's specified location
+        weather_data, alert = get_weather(location_name)
         
         condition = weather_data.get("condition", {}).get("text")
         temperature_c = weather_data.get("temp_c")
@@ -48,24 +53,20 @@ def home():
         
         # Fetch customized outfit recommendations based on user profile preferences
         
-        #outfit_recommendations = get_outfit_recommendations(weather_data, current_user.profile)
-        outfit_recommendations = []
+        outfit_recommendations = get_outfit_recommendations(weather_data, current_user.profile)
+        #outfit_recommendations = []
         return render_template('home.html', 
+                               location_name = location_name,
                                username=current_user.username,  # Display username
-                               alert=alert,
-                               condition=condition,
-                               temperature=temperature_c,
-                               feels_like=feels_like,
-                               wind_speed=wind_speed_kph,
-                               precipitation=precipitation_mm,
-                               visibility=visibility_km,
-                               uv_index=uv_index,
-                               humidity=humidity,
-                               outfit_recommendations=outfit_recommendations)
+                               alert=alert, condition=condition,
+                               temperature=temperature_c, feels_like=feels_like,
+                               wind_speed=wind_speed_kph, precipitation=precipitation_mm,
+                               visibility=visibility_km, uv_index=uv_index,
+                               humidity=humidity, recommendations=outfit_recommendations)
     else:
         # User is not logged in, show default weather for Chicago
-        city = "Chicago"  # Default city
-        weather_data, alert = get_weather(city)
+        city_name = "Chicago"  # Default city
+        weather_data, alert = get_weather(city_name=city_name)
 
         condition = weather_data.get("condition", {}).get("text")
         temperature_c = weather_data.get("temp_c")
@@ -78,24 +79,18 @@ def home():
         
 
         # Default outfit recommendations based on Chicago's weather
-        # Call this function once to populate the database
-        populate_sample_data()
-        #outfit_recommendations = get_default_outfit_recommendations(weather_data)
-        outfit_recommendations = []
+        outfit_recommendations = get_default_outfit_recommendations(weather_data)
+        #outfit_recommendations = []
 
         return render_template('home.html',
                                condition=condition,
-                               temperature=temperature_c,
-                               feels_like=feels_like,
-                               wind_speed=wind_speed_kph,
-                               precipitation=precipitation_mm,
-                               visibility=visibility_km,
-                               uv_index=uv_index,
-                               humidity=humidity,
-                               outfit_recommendations=outfit_recommendations)
+                               temperature=temperature_c, feels_like=feels_like,
+                               wind_speed=wind_speed_kph, precipitation=precipitation_mm,
+                               visibility=visibility_km, uv_index=uv_index,
+                               humidity=humidity, recommendations=outfit_recommendations)
 
 # Create tables and populate sample data during application setup
-@app.before_first_request
+@app.before_request
 def setup():
         #db.drop_all()
         db.create_all()
@@ -103,9 +98,9 @@ def setup():
 
 # profile creation 
 @app.route('/profile', methods = ['GET', 'POST'])
+@login_required
 def profile():
-        user_profile = current_user.profile
-        return render_template('profile.html', profile = user_profile)
+        return render_template('profile.html', profile = current_user.profile)
 
 # edit profile
 @app.route('/edit_profile', methods=['GET', 'POST'])
@@ -117,22 +112,97 @@ def edit_profile():
         # Update user profile with the form data
         current_user.profile.age = form.age.data
         current_user.profile.gender = form.gender.data
-        current_user.profile.city = form.city.data
-        current_user.profile.country = form.country.data
+        current_user.profile.location_zip = form.location_zip.data \
+                if form.location_zip.data else None
+        current_user.profile.location_city = form.location_city.data \
+                if form.location_city.data else None
+        current_user.profile.location_latitude = form.location_latitude.data \
+                if form.location_latitude.data else None
+        current_user.profile.location_longitude = form.location_longitude.data \
+                if form.location_longitude.data else None
         current_user.profile.comfort_level = int(form.comfort_level.data)
 
-        db.session.commit()
+        db.session.commit() # commit profile change
+
+        primary_location = UserLocation.query.filter_by(user_id=current_user.id, is_primary=True).first()
+
+        if primary_location:
+            primary_location.location_zip = form.location_zip.data \
+                if form.location_zip.data else None
+            primary_location.location_city = form.location_city.data \
+                if form.location_city.data else None
+            primary_location.location_latitude = form.location_latitude.data \
+                if form.location_latitude.data else None
+            primary_location.location_longitude = form.location_longitude.data \
+                if form.location_longitude.data else None
+        else:
+            # Create a new primary location
+            primary_location = UserLocation(
+                user_id=int(current_user.id),
+                location_zip=form.location_zip.data if form.location_zip.data else None,
+                location_city=form.location_city.data if form.location_city.data else None,
+                location_latitude=form.location_latitude.data if form.location_latitude.data else None,
+                location_longitude=form.location_longitude.data if form.location_longitude.data else None,
+                is_primary=True
+            )
+            db.session.add(primary_location)
+
+        db.session.commit() # commit location change
         return redirect(url_for('profile'))
 
     return render_template('edit_profile.html', form=form)
 
 
-# TODO
-# manage user locations 
-@app.route('/manage_locations', methods = ['GET', 'POST'])
+@app.route('/manage_locations', methods=['GET', 'POST'])
+@login_required
 def manage_locations():
-        return render_template('manage_locations.html',)
+    form = LocationForm()
+    user_locations = UserLocation.query.filter_by(user_id=current_user.id).all()
 
+    if form.validate_on_submit():
+        if form.is_primary.data:
+            # Set all other locations as non-primary
+            UserLocation.query.filter_by(user_id=current_user.id, is_primary=True).update({"is_primary": False})
+
+        new_location = UserLocation(
+            user_id=current_user.id,
+            location_zip=form.location_zip.data,
+            location_city=form.location_city.data,
+            location_latitude=form.location_latitude.data,
+            location_longitude=form.location_longitude.data,
+            is_primary=form.is_primary.data
+        )
+        db.session.add(new_location)
+        db.session.commit()
+        return redirect(url_for('manage_locations'))
+
+    return render_template('manage_locations.html', form=form, locations=user_locations)
+
+
+
+@app.route('/delete_location/<int:location_id>', methods=['GET'])
+@login_required
+def delete_location(location_id):
+    location = UserLocation.query.get_or_404(location_id)
+    if location.user_id == current_user.id:
+        db.session.delete(location)
+        db.session.commit()
+
+    return redirect(url_for('manage_locations'))
+
+@app.route('/set_primary_location/<int:location_id>', methods=['GET'])
+@login_required
+def set_primary_location(location_id):
+    # Set all other locations to non-primary
+    UserLocation.query.filter_by(user_id=current_user.id, is_primary=True).update({"is_primary": False})
+
+    # Set the selected location as primary
+    location = UserLocation.query.get_or_404(location_id)
+    if location.user_id == current_user.id:
+        location.is_primary = True
+        db.session.commit()
+
+    return redirect(url_for('manage_locations'))
 
 @app.route('/manage_wardrobe', methods=['GET', 'POST'])
 @login_required
@@ -141,7 +211,8 @@ def manage_wardrobe():
 
     if form.validate_on_submit():
         # Convert list of temperature ranges to comma-separated string
-        temperature_ranges_str = ",".join(form.temperature_ranges.data) if form.temperature_ranges.data else ""
+        temperature_ranges_str = ",".join(form.temperature_ranges.data) \
+                if form.temperature_ranges.data else ""
 
         # Create new UserClothingItem with correct boolean values from the form
         new_item = UserClothingItem(
@@ -193,7 +264,7 @@ def edit_wardrobe_item(item_id):
     return render_template('edit_wardrobe_item.html', form=form)
 
 
-# delete a single wardrobe item
+# delete a wardrobe item
 @app.route('/delete_wardrobe_item/<int:item_id>', methods=['POST'])
 @login_required
 def delete_wardrobe_item(item_id):
@@ -216,7 +287,10 @@ def register():
 
                 profile = Profile(
                         age = form.age.data, gender = form.gender.data,
-                        city = form.city.data, country = form.country.data, 
+                        location_zip = form.location_zip.data, 
+                        location_city = form.location_city.data,
+                        location_latitude = form.location_latitude.data,
+                        location_longitude = form.location_longitude.data,
                         comfort_level = int(form.comfort_level.data)
                 )
                 print(f"Adding user: {user.username} to the database.") # Debugging: user added
@@ -227,7 +301,28 @@ def register():
                 db.session.add(profile)
                 db.session.commit() # add user object in the database
 
-                print(f"User {user.username} and profile saved to the database.") # Debugging: user and profiled saved
+                print(f"User {user.username} and profile saved to the database.") # Debugging: user and profile saved
+                # populate user wardrobe with sample items
+                populate_user_wardrobe(user.id)
+
+                if form.location_zip.data or form.location_city.data or \
+                        (form.location_latitude.data and form.location_longitude.data):
+                        new_location = UserLocation(
+                                user_id = int(user.id),
+                                location_zip=form.location_zip.data \
+                                        if form.location_zip.data else None,
+                                location_city=form.location_city.data \
+                                        if form.location_city.data else None,
+                                location_latitude=form.location_latitude.data \
+                                        if form.location_latitude.data else None,
+                                location_longitude=form.location_longitude.data \
+                                        if form.location_longitude.data else None,
+                                is_primary=True
+                        )
+                        db.session.add(new_location)
+                        db.session.commit()
+                
+                print(f"User {user.username} location saved to the database.") # Debugging: location saved
 
                 login_user(user) # log the user in
                 return redirect(url_for('home'))
@@ -253,14 +348,31 @@ def login():
                         print("Password didn't match.")  # Debugging: password didn't match
         return render_template('login.html', form = form)
 
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
+
 # weather api intergration
-def get_weather(city_name):
+def get_weather(city_name=None, zipcode=None, latitude=None, longitude=None):
         api_url = "http://api.weatherapi.com/v1/forecast.json"
         api_key = "7ea62c83afb24f108ea225710242211"
         days = 1
 
+        # Check if any required info is present
+        if zipcode != None:
+              q = zipcode
+        elif latitude != None and longitude != None:
+              q = f"{latitude},{longitude}"
+        elif city_name != None:
+              q = city_name
+        else:
+              return "Error: Please provide at least one form of location."
+              
         # Make the API request
-        response = requests.get(f"{api_url}?key={api_key}&q={city_name}&days={days}&aqi=no&alerts=yes")
+        response = requests.get(f"{api_url}?key={api_key}&q={q}&days={days}&aqi=no&alerts=yes")
 
         if response.status_code == 200:
                 data = response.json()
@@ -270,6 +382,7 @@ def get_weather(city_name):
         current_weather = data.get("current", {})
         forecast_day = data.get("forecast", {}).get("forecastday", [])[0] if data.get("forecast") else {}
 
+        # TODO: whether ot not to use hourly data
         for hour in forecast_day.get("hour", []):
                 hour_time = hour.get("time")
                 hour_condition = hour.get("condition", {}).get("text")
@@ -305,11 +418,7 @@ def get_weather(city_name):
         alerts = data.get("alerts", {}).get("alert", [])
         alert_headline = alerts[0].get("headline") if alerts else None
 
-        
-
         return current_weather, alert_headline
-
-
 
 
 if __name__ == "__main__":
