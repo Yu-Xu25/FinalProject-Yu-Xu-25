@@ -7,17 +7,28 @@
     <meta name="description" content="This is a webpage to log user in">
     <meta name="author" content="Yu Xu">
     <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="static/styles.css">
+
 </head>
 
 <body>
     <h1>Log in</h1>
-    <form method="POST">
-        {{form.hidden_tag()}}
-        <p> {{ form.username.label }} {{ form.username() }} ({{ form.username.description }}) </p>
-        <p> {{ form.password.label }} {{ form.password() }} ({{ form.password.description }}) </p>
-        <p> <button type="submit"> Log In </button> </p>
-    </form>
 
+    <!-- Log in Form -->
+    <div class="recommendations-module">
+        <form method="POST">
+            {{form.hidden_tag()}}
+            <div class="form-group">
+                {{ form.username.label }} {{ form.username() }}
+                <small>({{ form.username.description }})</small>
+            </div>
+            <div class="form-group">
+                {{ form.password.label }} {{ form.password() }}
+                <small>({{ form.password.description }})</small>
+            </div>
+            <button type="submit">Log In</button>
+        </form>
+    </div>
 </body>
 
 </html>

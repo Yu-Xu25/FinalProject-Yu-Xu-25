@@ -7,44 +7,63 @@
     <meta name="description" content="This is a webpage for user to manage their wardrope">
     <meta name="author" content="Yu Xu">
     <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="static/styles.css">
+
 </head>
 
 <body>
+    <div class="nav-links"></div>
+    <a href="{{ url_for('profile') }}">Back to Profile</a>
+    </div>
     <h2>Manage Your Wardrobe</h2>
-    <!-- Add a wardrope item-->
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <div>{{ form.name.label }} {{ form.name() }}</div>
-        <div>{{ form.category.label }} {{ form.category() }}</div>
-        <div> Suitable for Temperature:
-            {% for subfield in form.temperature_ranges %}
-            <label>{{ subfield }} {{ subfield.label.text }}</label>
+
+    <!-- Add Item Form -->
+    <div class="form-group">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">{{ form.name.label }} {{ form.name() }}</div>
+            <div class="form-group">{{ form.category.label }} {{ form.category() }}</div>
+            <div class="form-group">
+                Temperature Ranges:
+                {% for subfield in form.temperature_ranges %}
+                <label>{{ subfield }} {{ subfield.label.text }}</label>
+                {% endfor %}
+            </div>
+            <div class="form-group">{{ form.precipitation_tag.label }} {{ form.precipitation_tag() }}</div>
+            <div class="form-group">{{ form.wind_protection_tag.label }} {{ form.wind_protection_tag() }}</div>
+            <div class="form-group">{{ form.uv_protection_tag.label }} {{ form.uv_protection_tag() }}</div>
+            <div class="form-group">{{ form.layer_type.label }} {{ form.layer_type() }}</div>
+            <div class="form-group">{{ form.setting.label }} {{ form.setting() }}</div>
+            <button type="submit">Add Item</button>
+        </form>
+    </div>
+
+    <!-- Wardrobe Grid, Categories: Top, Bottom, Footwear, Outerwear, Accessory -->
+    <div class="wardrobe-grid">
+        {% set categories = ['top', 'bottom', 'footwear', 'outerwear', 'accessory'] %}
+        {% for category in categories %}
+        <div class="wardrobe-category">
+            <h3>{{ category|title }}</h3>
+            {% for item in wardrobe_items if item.category.lower() == category %}
+            <div class="wardrobe-item">
+                <span>{{ item.name }}</span>
+                <div class="item-actions">
+                    <form action="{{ url_for('edit_wardrobe_item', item_id=item.id) }}" method="GET"
+                        style="display: inline;">
+                        <button type="submit">Edit</button>
+                    </form>
+                    <form action="{{ url_for('delete_wardrobe_item', item_id=item.id) }}" method="POST"
+                        style="display: inline;">
+                        <button type="submit" class="delete-btn"
+                            onclick="return confirm('Are you sure you want to delete this item?');">Delete</button>
+                    </form>
+                </div>
+            </div>
             {% endfor %}
         </div>
-        <div>{{ form.precipitation_tag.label }} {{ form.precipitation_tag() }}</div>
-        <div>{{ form.wind_protection_tag.label }} {{ form.wind_protection_tag() }}</div>
-        <div>{{ form.uv_protection_tag.label }} {{ form.uv_protection_tag() }}</div>
-        <div>{{ form.layer_type.label }} {{ form.layer_type() }}</div>
-        <div>{{ form.setting.label }} {{ form.setting() }}</div>
-        <div><button type="submit">Add Item</button></div>
-    </form>
-    <!-- Display items currently in wardrope -->
-    <h3>Your Wardrobe Items</h3>
-    <ul>
-        {% for item in wardrobe_items %}
-        <li>{{ item.name }} ({{ item.category }})
-            <form action="{{ url_for('edit_wardrobe_item', item_id=item.id) }}" method="GET" style="display: inline;">
-                <button type="submit">Edit</button>
-            </form>
-            <form action="{{ url_for('delete_wardrobe_item', item_id=item.id) }}" method="POST"
-                style="display: inline;">
-                <button type="submit"
-                    onclick="return confirm('Are you sure you want to delete this item?');">Delete</button>
-            </form>
-        </li>
         {% endfor %}
-    </ul>
-    <p><a href="{{ url_for('profile') }}">Back to Profile</a></p>
+    </div>
+
 
 </body>
 

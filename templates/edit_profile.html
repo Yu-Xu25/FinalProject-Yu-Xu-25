@@ -3,27 +3,32 @@
 <html lang="en">
 
 <head>
-    <title> User Login </title>
-    <meta name="description" content="This is a webpage for user to edit their profile">
-    <meta name="author" content="Yu Xu">
+    <title>Edit Profile</title>
     <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="static/styles.css">
 </head>
 
 <body>
+    <div class="nav-links">
+        <a href="{{ url_for('profile') }}">Back to Profile</a>
+    </div>
+
     <h1>Edit Your Profile</h1>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <div>{{ form.age.label }} {{ form.age() }}</div>
-        <div>{{ form.gender.label }} {{ form.gender() }}</div>
-        <div>{{ form.location_zip.label }} {{ form.location_zip() }}</div>
-        <div>{{ form.location_city.label }} {{ form.location_city() }}</div>
-        <div>{{ form.location_latitude.label }} {{ form.location_latitude() }}</div>
-        <div>{{ form.location_longitude.label }} {{ form.location_longitude() }}</div>
-        <div>{{ form.comfort_level.label }} {{ form.comfort_level() }}</div>
-        <div><button type="submit">Save Changes</button></div>
-    </form>
 
-
+    <!-- Edit Profile Form -->
+    <div class="recommendations-module">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">{{ form.age.label }} {{ form.age() }}</div>
+            <div class="form-group">{{ form.gender.label }} {{ form.gender() }}</div>
+            <div class="form-group">{{ form.location_zip.label }} {{ form.location_zip() }}</div>
+            <div class="form-group">{{ form.location_city.label }} {{ form.location_city() }}</div>
+            <div class="form-group">{{ form.location_latitude.label }} {{ form.location_latitude() }}</div>
+            <div class="form-group">{{ form.location_longitude.label }} {{ form.location_longitude() }}</div>
+            <div class="form-group">{{ form.comfort_level.label }} {{ form.comfort_level() }}</div>
+            <button type="submit">Save Changes</button>
+        </form>
+    </div>
 </body>
 
 </html>

@@ -4,113 +4,175 @@
 <head>
     <title>Home Page</title>
     <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="static/styles.css">
 </head>
 
 <body>
+    <!-- Navigation : If user is logged in, show profile and logout links -->
     {% if current_user.is_authenticated %}
+    <div class="nav-links">
+        <a href="{{ url_for('profile') }}">Profile</a>
+        <a href="{{ url_for('logout')}}">Log Out</a>
+    </div>
+
     <h1>Welcome back, {{ current_user.username }}!</h1>
 
-    <!-- Link to profile -->
-    <p><a href="{{ url_for('profile') }}">Go to Profile</a></p>
-    <p><a href="{{ url_for('logout')}}">Log Out</a></p>
-
-    <!-- Display alert if there is any -->
     {% if alert %}
-    <div style="color: red;">
-        <strong>Weather Alert: {{ alert }}</strong>
+    <div class="alert-module">
+        <strong>Weather Alert:</strong> {{ alert }}
     </div>
     {% endif %}
+    <!-- Weather Module -->
+    <div class="weather-module">
+        <h2>Weather in {{ location_name }}</h2>
+        <div class="weather-condition">{{ condition }}</div>
+        <div class="weather-primary">
+            <div class="weather-temp">
+                {{ temperature_f }}<span class="weather-units">°F</span> | <span class="weather-units">{{ temperature_c
+                    }}°C</span>
+            </div>
+        </div>
 
-    <!-- Display the weather based on user's location -->
-    <h2>Location: {{ location_name }}</h2>
-    <p>Condition: {{ condition }}</p>
-    <p>Temperature: {{ temperature }} °C</p>
-    <p>Feels Like Temperature: {{ feels_like }} °C</p>
-    <p>Wind Speed: {{ wind_speed }} km/h</p>
-    <p>Precipitation: {{ precipitation }} mm</p>
-    <p>Visibility: {{ visibility }} km</p>
-    <p>UV Index: {{ uv_index }}</p>
-    <p>Humidity: {{ humidity }}%</p>
+        <div class="weather-secondary">
+            <div class="weather-secondary-item">
+                Feels like: {{ feels_like_f }}°F | {{ feels_like_c }}°C
+            </div>
+            <div class="weather-secondary-item">
+                Wind: {{ wind_speed_mph }} mph | {{ wind_speed_kph }} km/h
+            </div>
+            <div class="weather-secondary-item">
+                Precipitation: {{ precipitation_in }} in | {{ precipitation_mm }} mm
+            </div>
+            <div class="weather-secondary-item">
+                Humidity: {{ humidity }}%
+            </div>
+        </div>
 
-    <!-- Customized Outfit Recommendations -->
-    <h3>Recommended Outfit</h3>
-    <ul>
-        <li>Top: {{ recommendations.outfit.top.name if recommendations.outfit.top }}</li>
-        <li>Bottom: {{ recommendations.outfit.bottom.name if recommendations.outfit.bottom }}</li>
-        <li>Footwear: {{ recommendations.outfit.footwear.name if recommendations.outfit.footwear }}</li>
-        <li>Outerwear: {{ recommendations.outfit.outerwear.name if recommendations.outfit.outerwear }}</li>
-    </ul>
-
-    <h3>Optional Recommendations</h3>
-    <ul>
-        {% if recommendations.optional_outfit.precipitation %}
-        <li>Precipitation Protection: {{ recommendations.optional_outfit.precipitation.name }}</li>
+        {% if alert %}
+        <div class="alert-module">
+            {{ alert }}
+        </div>
         {% endif %}
-        {% if recommendations.optional_outfit.wind_protection %}
-        <li>Wind Protection: {{ recommendations.optional_outfit.wind_protection.name }}</li>
-        {% endif %}
-        {% if recommendations.optional_outfit.uv_protection %}
-        <li>UV Protection: {{ recommendations.optional_outfit.uv_protection.name }}</li>
-        {% endif %}
-    </ul>
+    </div>
 
-    <h3>Notes</h3>
-    <ul>
-        {% for message in recommendations.messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
+    <!-- Recommendations Module -->
+    <div class="recommendations-module">
+        <h3>Recommended Outfit</h3>
+        <ul class="outfit-list">
+            {% if recommendations.outfit.top %}
+            <li class="outfit-item">Top: {{ recommendations.outfit.top.name }}</li>
+            {% endif %}
+            {% if recommendations.outfit.bottom %}
+            <li class="outfit-item">Bottom: {{ recommendations.outfit.bottom.name }}</li>
+            {% endif %}
+            {% if recommendations.outfit.footwear %}
+            <li class="outfit-item">Footwear: {{ recommendations.outfit.footwear.name }}</li>
+            {% endif %}
+            {% if recommendations.outfit.outerwear %}
+            <li class="outfit-item">Outerwear: {{ recommendations.outfit.outerwear.name }}</li>
+            {% endif %}
+        </ul>
 
+        {% if recommendations.optional_outfit %}
+        <h3>Additional Recommendations</h3>
+        <ul class="outfit-list">
+            {% if recommendations.optional_outfit.precipitation %}
+            <li class="outfit-item">Precipitation Protection: {{ recommendations.optional_outfit.precipitation.name }}
+            </li>
+            {% endif %}
+            {% if recommendations.optional_outfit.wind_protection %}
+            <li class="outfit-item">Wind Protection: {{ recommendations.optional_outfit.wind_protection.name }}</li>
+            {% endif %}
+            {% if recommendations.optional_outfit.uv_protection %}
+            <li class="outfit-item">UV Protection: {{ recommendations.optional_outfit.uv_protection.name }}</li>
+            {% endif %}
+        </ul>
+        {% endif %}
+
+        {% if recommendations.messages %}
+        <h3>Notes</h3>
+        <ul class="outfit-list">
+            {% for message in recommendations.messages %}
+            <li class="outfit-item">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
 
     {% else %}
-    <!-- Default message and weather info for unauthenticated users -->
+    <!-- Default Home Page -->
     <h1>Welcome to the Weather & Outfit Recommendation System!</h1>
+    <p>To get personalized recommendations, please <a href="{{ url_for('login') }}">Log In</a> or <a
+            href="{{ url_for('register') }}">Sign Up</a>!</p>
 
-    <p> To get personalized recommendations, please
-        <a href="{{ url_for('login') }}">Log in</a> or <a href="{{ url_for('register') }}">Sign up</a>!
-    </p>
+    <div class="weather-module">
+        <h2>Weather in Chicago</h2>
+        <div class="weather-condition">{{ condition }}</div>
+        <div class="weather-primary">
+            <div class="weather-temp">
+                {{ temperature_f }}<span class="weather-units">°F</span> | <span class="weather-units">{{ temperature_c
+                    }}°C</span>
+            </div>
+        </div>
 
-    <!-- Weather Info for Chicago -->
-    <h2>Chicago</h2>
-    <p>Condition: {{ condition }}</p>
-    <p>Temperature: {{ temperature }} °C</p>
-    <p>Feels Like Temperature: {{ feels_like }} °C</p>
-    <p>Wind Speed: {{ wind_speed }} km/h</p>
-    <p>Precipitation: {{ precipitation }} mm</p>
-    <p>Visibility: {{ visibility }} km</p>
-    <p>UV Index: {{ uv_index }}</p>
-    <p>Humidity: {{ humidity }}%</p>
+        <div class="weather-secondary">
+            <div class="weather-secondary-item">
+                Feels like: {{ feels_like_f }}°F | {{ feels_like_c }}°C
+            </div>
+            <div class="weather-secondary-item">
+                Wind: {{ wind_speed_mph }} mph | {{ wind_speed_kph }} km/h
+            </div>
+            <div class="weather-secondary-item">
+                Precipitation: {{ precipitation_in }} in | {{ precipitation_mm }} mm
+            </div>
+            <div class="weather-secondary-item">
+                Humidity: {{ humidity }}%
+            </div>
+        </div>
+    </div>
 
-    <!-- Default Outfit Recommendations -->
-    <h3>Recommended Outfit</h3>
-    <ul>
-        <li>Top: {{ recommendations.outfit.top.name if recommendations.outfit.top }}</li>
-        <li>Bottom: {{ recommendations.outfit.bottom.name if recommendations.outfit.bottom }}</li>
-        <li>Footwear: {{ recommendations.outfit.footwear.name if recommendations.outfit.footwear }}</li>
-        <li>Outerwear: {{ recommendations.outfit.outerwear.name if recommendations.outfit.outerwear }}</li>
-    </ul>
+    <div class="recommendations-module">
+        <h3>Recommended Outfit</h3>
+        <ul class="outfit-list">
+            {% if recommendations.outfit.top %}
+            <li class="outfit-item">Top: {{ recommendations.outfit.top.name }}</li>
+            {% endif %}
+            {% if recommendations.outfit.bottom %}
+            <li class="outfit-item">Bottom: {{ recommendations.outfit.bottom.name }}</li>
+            {% endif %}
+            {% if recommendations.outfit.footwear %}
+            <li class="outfit-item">Footwear: {{ recommendations.outfit.footwear.name }}</li>
+            {% endif %}
+            {% if recommendations.outfit.outerwear %}
+            <li class="outfit-item">Outerwear: {{ recommendations.outfit.outerwear.name }}</li>
+            {% endif %}
+        </ul>
 
-    <h3>Optional Recommendations</h3>
-    <ul>
-        {% if recommendations.optional_outfit.precipitation %}
-        <li>Precipitation Protection: {{ recommendations.optional_outfit.precipitation.name }}</li>
+        {% if recommendations.optional_outfit %}
+        <h3>Additional Recommendations</h3>
+        <ul class="outfit-list">
+            {% if recommendations.optional_outfit.precipitation %}
+            <li class="outfit-item">Precipitation Protection: {{ recommendations.optional_outfit.precipitation.name }}
+            </li>
+            {% endif %}
+            {% if recommendations.optional_outfit.wind_protection %}
+            <li class="outfit-item">Wind Protection: {{ recommendations.optional_outfit.wind_protection.name }}</li>
+            {% endif %}
+            {% if recommendations.optional_outfit.uv_protection %}
+            <li class="outfit-item">UV Protection: {{ recommendations.optional_outfit.uv_protection.name }}</li>
+            {% endif %}
+        </ul>
         {% endif %}
-        {% if recommendations.optional_outfit.wind_protection %}
-        <li>Wind Protection: {{ recommendations.optional_outfit.wind_protection.name }}</li>
+
+        {% if recommendations.messages %}
+        <h3>Notes</h3>
+        <ul class="outfit-list">
+            {% for message in recommendations.messages %}
+            <li class="outfit-item">{{ message }}</li>
+            {% endfor %}
+        </ul>
         {% endif %}
-        {% if recommendations.optional_outfit.uv_protection %}
-        <li>UV Protection: {{ recommendations.optional_outfit.uv_protection.name }}</li>
-        {% endif %}
-    </ul>
-
-    <h3>Notes</h3>
-    <ul>
-        {% for message in recommendations.messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-
-
+    </div>
     {% endif %}
 </body>
 

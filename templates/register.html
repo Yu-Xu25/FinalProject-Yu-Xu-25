@@ -7,28 +7,45 @@
     <meta name="description" content="This is a webpage to accept user registration of their username and password">
     <meta name="author" content="Yu Xu">
     <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="static/styles.css">
+
 </head>
 
 <body>
     <h1>Sign up</h1>
-    <form method="POST">
-        {{form.hidden_tag()}}
-        <p> {{ form.username.label }} {{ form.username() }} ({{ form.username.description }})</p>
-        <p> {{ form.password.label }} {{ form.password() }} ({{ form.password.description }})</p>
 
-        <h2>Profile Creation</h2>
+    <!-- Sign up Form -->
+    <div class="recommendations-module">
+        <form method="POST">
+            {{form.hidden_tag()}}
+            <div class="form-group">
+                {{ form.username.label }} {{ form.username() }}
+                <small>({{ form.username.description }})</small>
+            </div>
+            <div class="form-group">
+                {{ form.password.label }} {{ form.password() }}
+                <small>({{ form.password.description }})</small>
+            </div>
 
-        <p> {{ form.age.label }} {{ form.age() }} {{ form.gender.label }} {{ form.gender() }} </p>
-        <h4> Choose one form of location to enter: </h4>
-        <p> {{ form.location_city.label }} {{ form.location_city() }} </p>
-        <p> {{ form.location_zip.label }} {{ form.location_zip() }} </p>
-        <p> {{ form.location_latitude.label }} {{ form.location_latitude() }},
-            {{ form.location_longitude.label }} {{ form.location_longitude() }} </p>
-        <p> {{ form.comfort_level.label }} {{ form.comfort_level() }} </p>
+            <h2>Profile Creation</h2>
 
-        <p>{{ form.submit() }}</p>
-    </form>
+            <div class="form-group">
+                {{ form.age.label }} {{ form.age() }}
+                {{ form.gender.label }} {{ form.gender() }}
+            </div>
 
+            <h4>Choose one form of location to enter:</h4>
+            <div class="form-group">{{ form.location_city.label }} {{ form.location_city() }}</div>
+            <div class="form-group">{{ form.location_zip.label }} {{ form.location_zip() }}</div>
+            <div class="form-group">
+                {{ form.location_latitude.label }} {{ form.location_latitude() }}
+                {{ form.location_longitude.label }} {{ form.location_longitude() }}
+            </div>
+            <div class="form-group">{{ form.comfort_level.label }} {{ form.comfort_level() }}</div>
+
+            <button type="submit">{{ form.submit.label }}</button>
+        </form>
+    </div>
 </body>
 
 </html>

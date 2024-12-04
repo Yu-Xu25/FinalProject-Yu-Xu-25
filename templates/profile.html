@@ -4,35 +4,46 @@
 <head>
     <title>Profile</title>
     <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="static/styles.css">
+
 </head>
 
 <body>
+    <div class="nav-links">
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('edit_profile') }}">Edit Profile</a>
+        <a href="{{ url_for('manage_locations') }}">Manage Locations</a>
+        <a href="{{ url_for('manage_wardrobe') }}">Manage Wardrobe</a>
+    </div>
+    <!-- Profile Page -->
     <h1>Profile of {{ current_user.username }}</h1>
 
-    <!-- Profile Information -->
-    <p>Age: {{ profile.age }}</p>
-    <p>Gender: {{ profile.gender }}</p>
-
-    {% if profile.location_zip %}
-    <div>ZIP Code: {{ profile.location_zip }}</div>
-    {% endif %}
-
-    {% if profile.location_city %}
-    <div>City: {{ profile.location_city }}</div>
-    {% endif %}
-
-    {% if profile.location_latitude and profile.location_longitude %}
-    <div>Coordinates: {{ profile.location_latitude }}, {{ profile.location_longitude }}</div>
-    {% endif %}
-
-    <p>Comfort Level: {{ profile.comfort_level }}</p>
-
-    <!-- Links to Edit Profile or Preferences -->
-    <p><a href="{{ url_for('edit_profile') }}">Edit Profile</a></p>
-    <p><a href="{{ url_for('manage_locations') }}">Manage Locations</a></p>
-    <p><a href="{{ url_for('manage_wardrobe') }}">Manage Wardrobe</a></p>
-    <p><a href="{{ url_for('home') }}">Home</a></p>
-
+    <div class="profile-items">
+        <div class="profile-item">
+            <strong>Age:</strong> {{ profile.age }}
+        </div>
+        <div class="profile-item">
+            <strong>Gender:</strong> {{ profile.gender }}
+        </div>
+        {% if profile.location_zip %}
+        <div class="profile-item">
+            <strong>ZIP Code:</strong> {{ profile.location_zip }}
+        </div>
+        {% endif %}
+        {% if profile.location_city %}
+        <div class="profile-item">
+            <strong>City:</strong> {{ profile.location_city }}
+        </div>
+        {% endif %}
+        {% if profile.location_latitude and profile.location_longitude %}
+        <div class="profile-item">
+            <strong>Coordinates:</strong> {{ profile.location_latitude }}, {{ profile.location_longitude }}
+        </div>
+        {% endif %}
+        <div class="profile-item">
+            <strong>Comfort Level:</strong> {{ profile.comfort_level }}
+        </div>
+    </div>
 </body>
 
 </html>

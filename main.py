@@ -44,11 +44,13 @@ def home():
         
         condition = weather_data.get("condition", {}).get("text")
         temperature_c = weather_data.get("temp_c")
-        feels_like = weather_data.get("feelslike_c")
+        temperature_f = weather_data.get("temp_f")
+        feels_like_c = weather_data.get("feelslike_c")
+        feels_like_f = weather_data.get("feelslike_f")
         wind_speed_kph = weather_data.get("wind_kph")
+        wind_speed_mph = weather_data.get("wind_mph")
         precipitation_mm = weather_data.get("precip_mm")
-        visibility_km = weather_data.get("vis_km")
-        uv_index = weather_data.get("uv")
+        precipitation_in = weather_data.get("precip_in")
         humidity = weather_data.get("humidity")
         
         # Fetch customized outfit recommendations based on user profile preferences
@@ -59,9 +61,10 @@ def home():
                                location_name = location_name,
                                username=current_user.username,  # Display username
                                alert=alert, condition=condition,
-                               temperature=temperature_c, feels_like=feels_like,
-                               wind_speed=wind_speed_kph, precipitation=precipitation_mm,
-                               visibility=visibility_km, uv_index=uv_index,
+                               temperature_c=temperature_c, feels_like_c=feels_like_c,
+                               temperature_f=temperature_f, feels_like_f=feels_like_f,
+                               wind_speed_kph=wind_speed_kph, wind_speed_mph=wind_speed_mph,
+                               precipitation_mm=precipitation_mm, precipitation_in=precipitation_in,
                                humidity=humidity, recommendations=outfit_recommendations)
     else:
         # User is not logged in, show default weather for Chicago
@@ -70,11 +73,13 @@ def home():
 
         condition = weather_data.get("condition", {}).get("text")
         temperature_c = weather_data.get("temp_c")
-        feels_like = weather_data.get("feelslike_c")
+        temperature_f = weather_data.get("temp_f")
+        feels_like_c = weather_data.get("feelslike_c")
+        feels_like_f = weather_data.get("feelslike_f")
         wind_speed_kph = weather_data.get("wind_kph")
+        wind_speed_mph = weather_data.get("wind_mph")
         precipitation_mm = weather_data.get("precip_mm")
-        visibility_km = weather_data.get("vis_km")
-        uv_index = weather_data.get("uv")
+        precipitation_in = weather_data.get("precip_in")
         humidity = weather_data.get("humidity")
         
 
@@ -84,9 +89,10 @@ def home():
 
         return render_template('home.html',
                                condition=condition,
-                               temperature=temperature_c, feels_like=feels_like,
-                               wind_speed=wind_speed_kph, precipitation=precipitation_mm,
-                               visibility=visibility_km, uv_index=uv_index,
+                               temperature_c=temperature_c, feels_like_c=feels_like_c,
+                               temperature_f=temperature_f, feels_like_f=feels_like_f,
+                               wind_speed_kph=wind_speed_kph, wind_speed_mph=wind_speed_mph,
+                               precipitation_mm=precipitation_mm, precipitation_in=precipitation_in,
                                humidity=humidity, recommendations=outfit_recommendations)
 
 # Create tables and populate sample data during application setup
@@ -180,7 +186,7 @@ def manage_locations():
 
 
 # delete location
-@app.route('/delete_location/<int:location_id>', methods=['GET'])
+@app.route('/delete_location/<int:location_id>', methods=['GET', 'POST'])
 @login_required
 def delete_location(location_id):
     location = UserLocation.query.get_or_404(location_id)
@@ -191,7 +197,7 @@ def delete_location(location_id):
     return redirect(url_for('manage_locations'))
 
 # Set a location as primary to be displayed at home page
-@app.route('/set_primary_location/<int:location_id>', methods=['GET'])
+@app.route('/set_primary_location/<int:location_id>', methods=['GET', 'POST'])
 @login_required
 def set_primary_location(location_id):
     # Set all other locations to non-primary

@@ -2,47 +2,60 @@
 <html>
 
 <head>
-    <title> User Login </title>
-    <meta name="description" content="This is a webpage for user to manage their locations">
-    <meta name="author" content="Yu Xu">
+    <title>Manage Locations</title>
     <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="static/styles.css">
 </head>
 
 <body>
+    <div class="nav-links">
+        <a href="{{ url_for('profile') }}">Back to Profile</a>
+    </div>
+
     <h1>Manage Your Locations</h1>
+    <!-- Add Location Form -->
+    <div class="recommendations-module">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">{{ form.location_zip.label }} {{ form.location_zip() }}</div>
+            <div class="form-group">{{ form.location_city.label }} {{ form.location_city() }}</div>
+            <div class="form-group">{{ form.location_latitude.label }} {{ form.location_latitude() }}</div>
+            <div class="form-group">{{ form.location_longitude.label }} {{ form.location_longitude() }}</div>
+            <div class="form-group">{{ form.is_primary.label }} {{ form.is_primary() }}</div>
+            <button type="submit">Add Location</button>
+        </form>
+    </div>
 
-    <!-- Form to Add New Location -->
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <div>{{ form.location_zip.label }} {{ form.location_zip() }}</div>
-        <div>{{ form.location_city.label }} {{ form.location_city() }}</div>
-        <div>{{ form.location_latitude.label }} {{ form.location_latitude() }}</div>
-        <div>{{ form.location_longitude.label }} {{ form.location_longitude() }}</div>
-        <div>{{ form.is_primary.label }} {{ form.is_primary() }}</div>
-        <div><button type="submit">Add Location</button></div>
-    </form>
-
-    <!-- List of Existing Locations -->
-    <h2>Your Locations</h2>
-    <ul>
-        {% for location in locations %}
-        <li>
-            {% if location.is_primary %} <strong>(Primary)</strong> {% endif %}
-            {% if location.location_zip %} ZIP Code: {{ location.location_zip }} {% endif %}
-            {% if location.location_city %} City: {{ location.location_city }} {% endif %}
-            {% if location.location_latitude and location.location_longitude %}
-            Coordinates: {{ location.location_latitude }}, {{ location.location_longitude }}
-            {% endif %}
-            <!-- Buttons to edit, delete, or set as primary -->
-            <a href="{{ url_for('delete_location', location_id=location.id) }}">Delete</a>
-            {% if not location.is_primary %}
-            <a href="{{ url_for('set_primary_location', location_id=location.id) }}">Set as Primary</a>
-            {% endif %}
-        </li>
-        {% endfor %}
-    </ul>
-
-    <p><a href="{{ url_for('profile') }}">Back to Profile</a></p>
+    <!-- Your Locations -->
+    <div class="weather-module">
+        <h2>Your Locations</h2>
+        <div class="weather-grid">
+            {% for location in locations %}
+            <div class="weather-item">
+                {% if location.location_zip %}<div>ZIP Code: {{ location.location_zip }} {% if location.is_primary
+                    %}<strong>(Primary)</strong>{% endif %}</div>{% endif %}
+                {% if location.location_city %}<div>City: {{ location.location_city }}</div>{% endif %}
+                {% if location.location_latitude and location.location_longitude %}
+                <div>Coordinates: {{ location.location_latitude }}, {{ location.location_longitude }}</div>
+                {% endif %}
+                <!-- Item Actions (Delete and Set as Primary) -->
+                <div class="item-actions">
+                    <form action="{{ url_for('delete_location', location_id=location.id) }}" method="POST"
+                        style="display: inline;">
+                        <button type="submit" class="delete-btn"
+                            onclick="return confirm('Are you sure you want to delete this location?');">Delete</button>
+                    </form>
+                    {% if not location.is_primary %}
+                    <form action="{{ url_for('set_primary_location', location_id=location.id) }}" method="POST"
+                        style="display: inline;">
+                        <button type="submit">Set as Primary</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </body>
 
 </html>

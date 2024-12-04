@@ -74,7 +74,7 @@ class UserLocation(db.Model):
     is_primary = db.Column(db.Boolean, default=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    
+    # Helper function to get the location name
     def get_location_name(self):
         if self.location_city:
             return self.location_city

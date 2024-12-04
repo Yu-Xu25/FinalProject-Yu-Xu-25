@@ -21,7 +21,7 @@ class UserProfileForm(FlaskForm):
 
     submit = SubmitField('Save Profile')
 
-# validate that at least one form of location is provided
+    # validate that at least one form of location is provided
     def validate(self, **kwargs):
         if not (self.location_zip.data or self.location_city.data or 
                 (self.location_latitude.data and self.location_longitude.data)):
@@ -61,7 +61,7 @@ class RegistrationForm(FlaskForm):
             return False
         return super().validate(**kwargs)
 
-
+# User Login Entry
 class LoginForm(FlaskForm):
     # User Login
     username = StringField('Username', description = 'between 1 and 16 characters', 
