@@ -37,4 +37,4 @@ example:
  * Travel Support: Enable users to input travel destinations and dates, and fetch weather forecasts for those locations. Provide packing lists or outfit suggestions based on the travel destination’s weather.
  * Layered Outfits: Recommend layered outfits for users against the colder weather, such that user can be more adaptable to temperature differences between indoors and outdoors.
  * Health Alerts: Alert of weather conditions that should be taken caution about for users with different health conditions.
-
+ * use automatic tests to test the functionality of the web app.

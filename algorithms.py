@@ -152,7 +152,7 @@ def populate_user_wardrobe(user_id):
 
 
 # Add around 10 clothing items that cover a variety of conditions 
-# in the SampleClothingItem and UserClothingItem table
+# in the SampleClothingItem
 def populate_sample_data():
     sample_items = [
         SampleClothingItem(

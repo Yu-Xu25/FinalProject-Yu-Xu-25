@@ -303,7 +303,7 @@ def register():
                         comfort_level = int(form.comfort_level.data)
                 )
                 db.session.add(user)
-                db.session.commit()  # commits both the user and profile to the database
+                db.session.commit()  # commits user to the database
                 
                 user.profile = profile
                 db.session.add(profile)

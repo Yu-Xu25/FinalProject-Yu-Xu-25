@@ -4,34 +4,59 @@
 <head>
     <title>Edit Wardrobe Item</title>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="static/styles.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 
 <body>
     <div class="nav-links">
         <a href="{{ url_for('manage_wardrobe') }}">Back to Wardrobe</a>
     </div>
-
-    <h2>Edit Wardrobe Item</h2>
-
     <!-- Edit Wardrobe Item Form -->
     <div class="recommendations-module">
-        <form method="POST">
+        <h2>Edit Wardrobe Item</h2>
+
+        <form method="POST" class="edit-form">
             {{ form.hidden_tag() }}
-            <div class="form-group">{{ form.name.label }} {{ form.name() }}</div>
-            <div class="form-group">{{ form.category.label }} {{ form.category() }}</div>
             <div class="form-group">
-                Temperature Ranges:
+                <label for="name">{{ form.name.label }}</label>
+                {{ form.name(class="form-control") }}
+            </div>
+            <div class="form-group">
+                <label for="category">{{ form.category.label }}</label>
+                {{ form.category(class="form-control") }}
+            </div>
+            <!-- Temperature Ranges -->
+            <div class="form-group">
+                <label>Temperature Ranges:</label>
                 {% for subfield in form.temperature_ranges %}
-                <label>{{ subfield }} {{ subfield.label.text }}</label>
+                <div class="form-check">
+                    <label class="form-check-label">
+                        {{ subfield(class="form-check-input") }} {{ subfield.label.text }}
+                    </label>
+                </div>
                 {% endfor %}
             </div>
-            <div class="form-group">{{ form.precipitation_tag.label }} {{ form.precipitation_tag() }}</div>
-            <div class="form-group">{{ form.wind_protection_tag.label }} {{ form.wind_protection_tag() }}</div>
-            <div class="form-group">{{ form.uv_protection_tag.label }} {{ form.uv_protection_tag() }}</div>
-            <div class="form-group">{{ form.layer_type.label }} {{ form.layer_type() }}</div>
-            <div class="form-group">{{ form.setting.label }} {{ form.setting() }}</div>
-            <button type="submit">Save Changes</button>
+            <div class="form-group">
+                <label for="precipitation_tag">{{ form.precipitation_tag.label }}</label>
+                {{ form.precipitation_tag(class="form-control") }}
+            </div>
+            <div class="form-group">
+                <label for="wind_protection_tag">{{ form.wind_protection_tag.label }}</label>
+                {{ form.wind_protection_tag(class="form-control") }}
+            </div>
+            <div class="form-group">
+                <label for="uv_protection_tag">{{ form.uv_protection_tag.label }}</label>
+                {{ form.uv_protection_tag(class="form-control") }}
+            </div>
+            <div class="form-group">
+                <label for="layer_type">{{ form.layer_type.label }}</label>
+                {{ form.layer_type(class="form-control") }}
+            </div>
+            <div class="form-group">
+                <label for="setting">{{ form.setting.label }}</label>
+                {{ form.setting(class="form-control") }}
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
         </form>
     </div>
 </body>

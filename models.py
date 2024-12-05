@@ -17,7 +17,7 @@ class User(UserMixin, db.Model):
 
 # User Profile Data
 class Profile(db.Model):
-    id = db.Column(db.Integer, primary_key = True) # set user id to be primary key
+    id = db.Column(db.Integer, primary_key = True) # set profile id to be primary key
     age = db.Column(db.Integer, nullable = False)
     gender = db.Column(db.String(20), nullable = False)
     location_zip = db.Column(db.String(10), nullable=True)
