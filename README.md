@@ -32,9 +32,14 @@ example:
 * Finally, 
     * I will have finalized the project by adding documentation, including API endpoints and usage instructions.
     * I will have prepared a presentation showcasing the project’s features and potential for future improvements.
- 
+
+Usage Instructions:
+For visiting the website, go to link http://127.0.0.1:8080/ in your browser
+To access the website in your terminal, download this repository. Direct to the path of this repo and enter command: *python main.py* . 
+Hover your mouse on *Running on http://127.0.0.1:8080/*, press and hold the cmd key (for Mac) and click on the link. You should be directed to the website's home page.
+
  Future developments:
- * Travel Support: Enable users to input travel destinations and dates, and fetch weather forecasts for those locations. Provide packing lists or outfit suggestions based on the travel destination’s weather.
+ * Travel Support: Enable users to input travel destinations and dates, and fetch weather forecasts according to the number of days for those locations. Provide packing lists or outfit suggestions based on the travel destination’s weather.
  * Layered Outfits: Recommend layered outfits for users against the colder weather, such that user can be more adaptable to temperature differences between indoors and outdoors.
- * Health Alerts: Alert of weather conditions that should be taken caution about for users with different health conditions.
+ * Health Alerts: Alert of weather conditions that should be taken caution about for users with different health conditions. Inform users of optional outfit recommendations that can protect them from the weather.
  * use automatic tests to test the functionality of the web app.
